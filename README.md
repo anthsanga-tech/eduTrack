@@ -1,78 +1,65 @@
 # eduTrack
 
-**eduTrack** is a web-based education and online assessment platform designed to manage tests, questions, assignments, student attempts, submissions, and results.
+eduTrack is a web-based assessment platform with separate applications for administrators, teachers, and students. Teachers create and assign tests, students complete timed attempts and review results, and administrators manage users and subjects.
 
-The system provides separate interfaces for **Administrators, Teachers, and Students**, with role-based access control and a complete test-taking workflow.
+## Features
 
-## ✨ Features
+### Administrators
 
-### 👨‍💼 Admin
-
-- User management
-- Create and manage users
-- Assign user roles
+- Create, update, and manage user accounts and roles
 - Manage subjects
-- Manage the overall education platform
+- View platform analytics and reports
 
-### 👨‍🏫 Teacher
+### Teachers
 
-- View assigned subjects
-- Create and manage questions
-- Create and edit tests
-- Add/remove questions from tests
+- Create and manage questions, including difficulty levels
+- Create and edit tests; organize questions by difficulty
+- Set test duration, availability, passing percentage, and retake limits
 - Assign tests to students
-- Configure test duration
-- Configure test availability
-- Set passing percentage
-- Configure retake rules
-- View student submissions and results
+- Review student submissions and results
+- View dashboard analytics for assignments, submissions, completion, and average scores
 
-### 👨‍🎓 Student
+### Students
 
-- View assigned tests
-- View test status and availability
-- Start an online test
-- Countdown timer during an attempt
-- Submit answers
-- Automatic score calculation
-- View test results
-- View pass/fail status
-- Retake tests when permitted
-- Track completed and pending tests
+- View assigned tests and assessment progress
+- Complete timed tests and submit answers
+- View scores, pass/fail results, and result breakdowns
+- Retake tests when allowed by the test rules
 
----
+### Platform
 
-## 🔐 Authentication & Authorization
+- JWT-based sign-in with role-based access checks in the frontend and backend
+- Password reset by email through Resend, or through a development-only console mode
+- Automatic closure of published tests after their due date
 
-eduTrack uses **JWT-based authentication** with role-based authorization.
+## Applications and technology
 
-There are three main roles:
+| Application | Location | Stack |
+| --- | --- | --- |
+| Backend API | `backend/` | Node.js, Express 5, MongoDB, Mongoose |
+| Admin | `frontend/admin-frontend/` | React 19, TypeScript, Vite |
+| Teacher | `frontend/teacher-frontend/` | React 19, TypeScript, Vite, Tailwind CSS |
+| Student | `frontend/student-frontend/` | React 19, TypeScript, Vite, Tailwind CSS |
 
-```text
-Admin
-Teacher
-Student
-```
+The frontends use React Router and Axios. Each application has its own `package.json`; there are no root-level install or run scripts.
 
-Protected routes prevent users from accessing functionality outside their assigned role.
+## Requirements
 
-For example:
+- Node.js and npm
+- Access to the MongoDB Atlas cluster configured by the backend, or an update to the connection configuration for another MongoDB deployment
 
-```text
-Admin    → Admin features
-Teacher  → Teacher features
-Student  → Student features
-```
+## Local development
 
-The backend also validates authorization rather than relying only on frontend route protection.
+### 1. Configure the backend
 
-### Password recovery
-
-Admin, teacher, and student sign-in pages include a password reset flow. Reset links are valid for 15 minutes and can only be used once. The backend stores only a hash of each reset token.
-
-For local testing without an email provider, set these variables in `backend/.env`. Console mode prints a one-time reset link in the backend terminal instead of sending email:
+Create `backend/.env` with the MongoDB credentials and JWT secret:
 
 ```env
+PORT=5000
+MONGO_USER=your_mongodb_username
+MONGO_PASS=your_mongodb_password
+MONGO_DB=your_database_name
+JWT_SECRET=replace_with_a_long_random_secret
 NODE_ENV=development
 PASSWORD_RESET_EMAIL_MODE=console
 ADMIN_FRONTEND_URL=http://localhost:5173
@@ -80,579 +67,81 @@ TEACHER_FRONTEND_URL=http://localhost:5174
 STUDENT_FRONTEND_URL=http://localhost:5175
 ```
 
-Start the backend from `backend/` with `node server.js`, then start the frontend you want to test from its own folder using `npm run dev -- --port 5173` for admin, `npm run dev -- --port 5174` for teacher, or `npm run dev -- --port 5175` for student. On the login page, choose **Forgot password?**, submit an existing account's email, then copy the `[DEV PASSWORD RESET]` link from the backend terminal into your browser. Choose a new password before the link expires in 15 minutes.
+The backend reads `MONGO_USER`, `MONGO_PASS`, and `MONGO_DB` to build its MongoDB connection string in `backend/src/config/db.js`. The current cluster host and connection options are defined there.
 
-Console mode is rejected unless `NODE_ENV=development`. Before deploying, unset `PASSWORD_RESET_EMAIL_MODE` or set it to `resend`, and configure `RESEND_API_KEY`, `PASSWORD_RESET_FROM` with a verified sender domain, and each deployed frontend URL. Never enable console mode in production: it writes password-reset links to application logs.
-
----
-
-## 🧪 Test & Assessment Workflow
-
-A typical test workflow is:
-
-```text
-Teacher
-   │
-   ├── Create Questions
-   │
-   ├── Create Test
-   │
-   ├── Add Questions
-   │
-   ├── Assign Students
-   │
-   └── Publish Test
-          │
-          ▼
-       Student
-          │
-          ├── View Test
-          │
-          ├── Start Attempt
-          │
-          ├── Answer Questions
-          │
-          ├── Submit Test
-          │
-          ▼
-       Submission
-          │
-          ├── Calculate Score
-          ├── Determine Pass/Fail
-          └── Store Result
-```
-
-### Test configuration
-
-Tests can contain:
-
-- Title
-- Description
-- Subject
-- Teacher
-- Assigned students
-- Questions
-- Duration
-- Due date
-- Status
-- Passing percentage
-- Total marks
-- Retake rules
-- Maximum attempts
-
-Example test states:
-
-```text
-Draft
-Published
-Closed
-```
-
----
-
-## ⏱️ Test Attempts
-
-The system supports configurable attempt rules.
-
-For example:
-
-```text
-Allow Retake: No
-Maximum Attempts: 1
-```
-
-or:
-
-```text
-Allow Retake: Yes
-Maximum Attempts: 3
-```
-
-The system tracks:
-
-- Attempt count
-- Remaining attempts
-- Whether another attempt is allowed
-- Submission time
-- Time taken
-- Score
-- Pass/fail result
-
----
-
-## 📊 Student Dashboard
-
-The student dashboard provides an overview of assessment progress, including:
-
-- Assigned tests
-- Completed tests
-- Pending tests
-- Passed tests
-- Failed tests
-- Average score
-
-Example:
-
-```text
-Assigned     12
-Completed     8
-Pending       4
-Passed        6
-Failed        2
-Average      78%
-```
-
----
-
-## 🛠️ Technology Stack
-
-### Frontend
-
-- React
-- Vite
-- React Router
-- Axios
-- React Toastify
-- Tailwind CSS
-
-### Backend
-
-- Node.js
-- Express.js
-- JWT Authentication
-- REST API
-
-### Database
-
-- MongoDB
-- Mongoose
-
-### Development Tools
-
-- Git
-- GitHub
-- VS Code
-
----
-
-## 📁 Project Structure
-
-The project is organized into separate frontend and backend applications.
-
-```text
-eduTrack/
-│
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── jobs/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   └── ...
-│   └── ...
-│
-├── frontend/
-│   ├── admin-frontend/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── ...
-│   ├── teacher-frontend/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── ...
-│   ├── student-frontend/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── ...
-│   └── utils
-│
-└── README.md
-```
-
----
-
-## 🗄️ Main Data Models
-
-The main entities in the system are:
-
-```text
-User
- │
- ├── Admin
- ├── Teacher
- └── Student
-
-Subject
- │
- └── Tests
-
-Test
- │
- ├── Questions
- ├── Assigned Students
- └── Submissions
-
-Question
- │
- └── Test
-
-Submission
- │
- ├── Student
- ├── Test
- └── Answers
-```
-
-### User
-
-```text
-_id
-name
-email
-password
-role
-```
-
-### Test
-
-```text
-_id
-title
-description
-dueDate
-durationMinutes
-subject
-teacher
-assignedStudents
-questions
-status
-startTime
-totalMark
-passPercentage
-attemptRules
-```
-
-### Question
-
-```text
-_id
-subject
-questionText
-options
-correctOption
-mark
-createdBy
-allowedTeachers
-```
-
-### Submission
-
-```text
-_id
-test
-student
-answers
-correct
-wrong
-startedAt
-timeTakenInSeconds
-score
-submittedAt
-```
-
----
-
-## 🔌 API Structure
-
-The backend exposes RESTful APIs organized by role and resource.
-
-Example:
-
-```text
-/api/auth
-/api/admin
-/api/teacher
-/api/student
-```
-
-Example endpoints:
-
-```text
-POST   /api/auth/login
-POST   /api/auth/register
-
-GET    /api/student/tests
-GET    /api/student/tests/:testId
-POST   /api/student/tests/:testId/submit
-
-GET    /api/teacher/tests
-POST   /api/teacher/tests
-PUT    /api/teacher/tests/:testId
-
-GET    /api/teacher/questions
-POST   /api/teacher/questions
-
-GET    /api/admin/users
-POST   /api/admin/users
-PUT    /api/admin/users/:id
-```
-
-> Endpoint names may change as the project evolves.
-
----
-
-## ⚙️ Getting Started
-
-### Prerequisites
-
-Make sure you have installed:
-
-- Node.js
-- npm
-- MongoDB or MongoDB Atlas
-- Git
-
-### 1. Clone the repository
-
-```bash
-git clone <your-repository-url>
-
-cd eduTrack
-```
+Console mode prints password-reset links in the backend terminal and is only accepted when `NODE_ENV=development`. To send real email instead, use `PASSWORD_RESET_EMAIL_MODE=resend` and configure `RESEND_API_KEY` and `PASSWORD_RESET_FROM` with a verified sender. Configure the three frontend URL variables for the URLs where each app is served. Never use console mode in production because reset links are written to logs.
 
 ### 2. Install dependencies
 
-Install dependencies for each application:
+Run these commands from the repository root:
 
 ```bash
-cd server
+cd backend
+npm install
+
+cd ../frontend/admin-frontend
+npm install
+
+cd ../teacher-frontend
+npm install
+
+cd ../student-frontend
 npm install
 ```
 
-Then install dependencies for the frontend applications:
+### 3. Start the backend
+
+In a terminal:
 
 ```bash
-cd ../admin
-npm install
-
-cd ../teacher
-npm install
-
-cd ../student
-npm install
+cd backend
+node server.js
 ```
 
-### 3. Configure environment variables
+The API listens on port `5000` by default, or on the port set by `PORT`.
 
-Create a `.env` file in the backend:
+### 4. Start the frontends
 
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-```
-
-Frontend applications can use their own environment configuration:
-
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-```
-
-**Do not commit `.env` files or other secrets to GitHub.**
-
-### 4. Start the backend
+Start each frontend in a separate terminal. Fixed ports keep the URLs aligned with the password-reset configuration above:
 
 ```bash
-cd server
+cd frontend/admin-frontend
+npm run dev -- --port 5173
+```
+
+```bash
+cd frontend/teacher-frontend
+npm run dev -- --port 5174
+```
+
+```bash
+cd frontend/student-frontend
+npm run dev -- --port 5175
+```
+
+Each frontend uses `http://localhost:5000/api` by default. To use a different API URL, set `VITE_API_URL` in that frontend's environment.
+
+## API
+
+The backend mounts these route groups:
+
+| Route prefix | Purpose |
+| --- | --- |
+| `/api/auth` | Registration, login, and password reset |
+| `/api/admin` | User, subject, analytics, and report management |
+| `/api/teacher` | Question, test, assignment, and submission management |
+| `/api/student` | Test attempts, dashboards, submissions, and results |
+
+Protected API operations require an authorized user role; frontend route protection is not the only access check.
+
+## Useful commands
+
+Each frontend provides these scripts when run from its directory:
+
+```bash
 npm run dev
+npm run build
+npm run lint
 ```
 
-### 5. Start the frontend
-
-Run the appropriate frontend application:
-
-```bash
-cd student
-npm run dev
-```
-
-The same approach can be used for the Admin and Teacher applications.
-
----
-
-## 🔒 Security Considerations
-
-eduTrack implements several basic security practices:
-
-- JWT-based authentication
-- Role-based authorization
-- Protected frontend routes
-- Backend authorization checks
-- Password hashing
-- Request validation
-- Environment variables for secrets
-- Ownership/permission checks for teacher resources
-- Student access validation for submissions and tests
-
-Frontend protection is treated as a user-experience feature; **authorization is enforced on the backend**.
-
----
-
-## 🧮 Scoring
-
-Test scores are calculated based on the marks assigned to questions.
-
-The system can determine:
-
-```text
-Score
-Percentage
-Pass / Fail
-```
-
-For example:
-
-```text
-Total Marks:       50
-Student Score:     42
-
-Percentage:
-42 / 50 × 100 = 84%
-
-Passing Percentage: 50%
-
-Result: PASSED
-```
-
----
-
-## 🚦 Test Availability
-
-Tests can have different states depending on their lifecycle:
-
-```text
-Draft
-   │
-   ▼
-Published
-   │
-   ▼
-Closed
-```
-
-Students can only interact with tests when the test's availability and attempt rules allow it.
-
-The backend performs the final access validation to prevent students from bypassing restrictions through direct API requests.
-
----
-
-## 🎯 Project Goals
-
-The main goals of eduTrack are to:
-
-- Provide a practical online assessment platform
-- Demonstrate full-stack web development skills
-- Implement role-based application architecture
-- Practice REST API design
-- Handle authentication and authorization
-- Design relational-style relationships using MongoDB
-- Implement real-world assessment rules
-- Build a maintainable React application
-- Practice production-oriented error handling and validation
-
----
-
-## 📚 What This Project Demonstrates
-
-This project demonstrates experience with:
-
-- Full-stack JavaScript development
-- React application architecture
-- REST API development
-- Authentication and authorization
-- MongoDB schema design
-- Mongoose relationships and population
-- Role-based access control
-- State management
-- Form validation
-- Error handling
-- Asynchronous API communication
-- Test/assessment business logic
-- Git and GitHub workflow
-- Environment configuration
-- Responsive UI development
-
----
-
-## 🚀 Future Improvements
-
-Possible future improvements include:
-
-- Email notifications
-- More advanced analytics
-- Question randomization
-- Question banks
-- Multiple question types
-- Bulk student assignment
-- Teacher performance reports
-- Student performance charts
-- Export results to Excel/PDF
-- Automated testing
-- CI/CD pipeline
-- Production deployment
-- Improved accessibility
-
----
-
-## 📸 Screenshots
-
-Add screenshots of the main interfaces here.
-
-### Student Dashboard
-
-_Add screenshot here._
-
-### Test Taking
-
-_Add screenshot here._
-
-### Test Result
-
-_Add screenshot here._
-
-### Teacher Test Management
-
-_Add screenshot here._
-
-### Admin User Management
-
-_Add screenshot here._
-
----
-
-## 👨‍💻 Author
-
-**HRANG THAN SANGA (Hein Thet Soe)**
-
-Web Developer
-
-GitHub: `anthony-sangtea-95`
-
----
-
-## 📄 License
-
-This project is currently for educational and portfolio purposes.
+The student frontend also defines `npm test`. The backend currently does not define a test or development script; start it with `node server.js`.

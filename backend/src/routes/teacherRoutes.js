@@ -8,6 +8,7 @@ import {
     getSubjects,
     assignTest,
     getMyTests,
+    getTeacherAnalytics,
     getTestById,
     getMyTestsBySubject,
     deleteTest,
@@ -37,6 +38,7 @@ router.get("/tests/students", getAllStudents);
 
 //Test
 router.post("/tests", createTest);
+router.get("/analytics", getTeacherAnalytics);
 router.get("/tests", getMyTests);
 router.get("/tests/:testId", getTestById);
 router.get("/subjects/:subjectId/tests", getMyTestsBySubject);

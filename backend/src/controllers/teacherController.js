@@ -391,6 +391,115 @@ export const getMyTests = async (req, res) => {
     }
 };
 
+export const getTeacherAnalytics = async (req, res) => {
+    try {
+        const [tests, submissionStats] = await Promise.all([
+            Test.find({ teacher: req.user._id })
+                .select("title status assignedStudents totalMarks createdAt")
+                .sort({ createdAt: -1 })
+                .lean(),
+            Submission.aggregate([
+                { $match: { submittedAt: { $ne: null } } },
+                {
+                    $lookup: {
+                        from: "tests",
+                        localField: "test",
+                        foreignField: "_id",
+                        as: "test",
+                    },
+                },
+                { $unwind: "$test" },
+                { $match: { "test.teacher": req.user._id } },
+                {
+                    $group: {
+                        _id: "$test._id",
+                        attempts: { $sum: 1 },
+                        students: {
+                            $addToSet: {
+                                $cond: [
+                                    { $in: ["$student", { $ifNull: ["$test.assignedStudents", []] }] },
+                                    "$student",
+                                    null,
+                                ],
+                            },
+                        },
+                        averageScore: {
+                            $avg: {
+                                $cond: [
+                                    { $gt: ["$test.totalMarks", 0] },
+                                    { $multiply: [{ $divide: ["$score", "$test.totalMarks"] }, 100] },
+                                    null,
+                                ],
+                            },
+                        },
+                    },
+                },
+            ]),
+        ]);
+
+        const statsByTest = new Map(
+            submissionStats.map((stats) => [
+                String(stats._id),
+                {
+                    attempts: stats.attempts,
+                    completedStudents: stats.students.filter(Boolean).length,
+                    averageScore: stats.averageScore,
+                },
+            ])
+        );
+        const assignedStudents = tests.reduce(
+            (total, test) => total + (test.assignedStudents?.length || 0),
+            0
+        );
+        const completedAssignments = tests.reduce(
+            (total, test) => total + (statsByTest.get(String(test._id))?.completedStudents || 0),
+            0
+        );
+        const submittedAttempts = submissionStats.reduce(
+            (total, stats) => total + stats.attempts,
+            0
+        );
+        const scoredAttempts = submissionStats.filter(
+            (stats) => stats.averageScore !== null && stats.averageScore !== undefined
+        );
+        const averageScore = scoredAttempts.length
+            ? scoredAttempts.reduce(
+                (total, stats) => total + stats.averageScore * stats.attempts,
+                0
+            ) / scoredAttempts.reduce((total, stats) => total + stats.attempts, 0)
+            : null;
+
+        res.json({
+            stats: {
+                totalTests: tests.length,
+                publishedTests: tests.filter((test) => test.status === "published").length,
+                assignedStudents,
+                submittedAttempts,
+                averageScore,
+                completionRate: assignedStudents
+                    ? (completedAssignments / assignedStudents) * 100
+                    : 0,
+            },
+            recentTests: tests.slice(0, 5).map((test) => {
+                const testStats = statsByTest.get(String(test._id));
+                return {
+                    _id: test._id,
+                    title: test.title,
+                    status: test.status,
+                    assignedStudents: test.assignedStudents?.length || 0,
+                    submittedStudents: testStats?.completedStudents || 0,
+                    submissions: testStats?.attempts || 0,
+                    averageScore: testStats?.averageScore ?? null,
+                    createdAt: test.createdAt,
+                };
+            }),
+        });
+    } catch (error) {
+        console.error("getTeacherAnalytics:", error);
+        res.status(500).json({ message: "Failed to load teacher analytics" });
+    }
+};
+
 export const getMyTestsBySubject = async (req, res) => {
     try {
         const { subjectId } = req.params;
