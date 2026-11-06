@@ -13,6 +13,7 @@ import {
     updateSubject,
     deleteSubject,
 } from "../controllers/adminController.js";
+import { lockTest, unlockTest } from "../controllers/resourceLockController.js";
 
 const router = express.Router();
 
@@ -20,6 +21,8 @@ router.use(protect, requireRole("admin"));
 
 router.get("/analytics", getAdminAnalytics);
 router.get("/reports", getAdminReport);
+router.patch("/tests/:testId/lock", lockTest);
+router.patch("/tests/:testId/unlock", unlockTest);
 router.get("/users", getAllUsers);
 router.post("/users", createUser);
 router.put("/users/:id", updateUser);

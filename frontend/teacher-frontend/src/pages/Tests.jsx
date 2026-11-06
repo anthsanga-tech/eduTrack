@@ -3,26 +3,34 @@ import { Link } from 'react-router-dom'
 import  API  from '../services/api'
 import Loading from '../components/Loading.jsx'
 import TestList from '../components/TestList.jsx'
+import ConfirmActionDialog from '../components/ConfirmActionDialog.jsx'
+import { getTestLifecycleActions } from '../utils/testLifecycle.js'
 import "../assets/css/Tests.css"
+import "../assets/css/Locking.css"
+import { showError, showSuccess } from '../../../utils/utils.jsx'
 
 export default function Tests() {
   const [tests, setTests] = useState([])
   const [subjects, setSubjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [feedback, setFeedback] = useState('')
   const [titleFilter, setTitleFilter] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [availabilityFilter, setAvailabilityFilter] = useState('all')
+  const [confirmation, setConfirmation] = useState(null)
+  const [actionBusy, setActionBusy] = useState(false)
 
   useEffect(() => {
     fetchTests()
   }, [])
 
-  const fetchTests = async () => {
+  const fetchTests = async ({ silent = false } = {}) => {
     try {
       setError(false)
-      setLoading(true)
+      setFeedback('')
+      if (!silent) setLoading(true)
       const [testsRes, subjectsRes] = await Promise.all([
         API.get('teacher/tests'),
         API.get('teacher/subjects')
@@ -32,8 +40,9 @@ export default function Tests() {
     } catch (err) {
       console.error('Failed to load tests', err)
       setError(true)
+      setFeedback(err.response?.data?.message || 'Tests could not be loaded. Please try again.')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -49,35 +58,89 @@ export default function Tests() {
       if (availabilityFilter === 'all') return true
 
       let testAvailability = test.status
-      if (test.startTime && now < new Date(test.startTime)) {
-        testAvailability = 'upcoming'
+      if (test.lifecycleStatus === 'drafted' || test.status === 'drafted' || test.status === 'draft') {
+        testAvailability = 'drafted'
       } else if (test.status === 'closed') {
         testAvailability = 'closed'
-      } else if (test.status === 'draft') {
-        testAvailability = 'draft'
       } else if (test.status === 'published') {
-        testAvailability = 'available'
+        testAvailability = test.startTime && now < new Date(test.startTime) ? 'upcoming' : 'available'
       }
 
       return testAvailability === availabilityFilter
     })
   }, [tests, titleFilter, difficultyFilter, subjectFilter, availabilityFilter])
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this test?");
-    if (!confirmDelete) return;
-
-    try {
-      const { data } = await API.delete(`/teacher/tests/${id}`);
-
-      if (data.success) {
-        setTests(prev => prev.filter(test => test._id !== id));
-      }
-    } catch (err) {
-      console.error("Delete failed", err);
-      alert("Failed to delete test");
+  const handleDelete = (test) => {
+    if (!getTestLifecycleActions(test).canDelete) {
+      showError(test?.deleteProtectionReason || 'This test cannot be deleted in its current state.')
+      return
     }
-};
+    setConfirmation({
+      type: 'delete',
+      test,
+      eyebrow: 'Permanent action',
+      title: 'Delete this test?',
+      description: `“${test.title}” will be permanently removed. This can’t be undone.`,
+      note: 'Tests with examination records cannot be deleted. Those results remain protected.',
+      confirmLabel: 'Delete test',
+      tone: 'danger',
+      icon: '×'
+    })
+  }
+
+  const handleToggleLock = (test) => {
+    const actions = getTestLifecycleActions(test)
+    const isLocked = Boolean(test.isManuallyLocked ?? test.isLocked)
+    const canChangeLock = isLocked ? actions.canUnlock : actions.canLock
+    if (!canChangeLock) {
+      showError(isLocked
+        ? test.unlockProtectionReason || 'This test cannot be unlocked in its current lifecycle state.'
+        : test.lockProtectionReason || 'This test cannot be locked in its current lifecycle state.')
+      return
+    }
+    const locking = !isLocked
+    setConfirmation({
+      type: locking ? 'lock' : 'unlock',
+      test,
+      eyebrow: 'Manual protection',
+      title: `${locking ? 'Lock' : 'Unlock'} this test?`,
+      description: locking
+        ? `While locked, “${test.title}” can’t be edited, changed, or deleted.`
+        : `You can edit “${test.title}” again while it remains drafted.`,
+      note: locking
+        ? 'Locking does not change the drafted lifecycle status.'
+        : 'Published and closed tests cannot be manually unlocked.',
+      confirmLabel: locking ? 'Lock test' : 'Unlock test',
+      tone: locking ? 'neutral' : 'success',
+      icon: locking ? '⌑' : '↗'
+    })
+  }
+
+  const closeConfirmation = () => setConfirmation(null)
+
+  const executeConfirmedAction = async () => {
+    if (!confirmation || actionBusy) return
+    const { type, test } = confirmation
+    setActionBusy(true)
+    try {
+      if (type === 'delete') {
+        const { data } = await API.delete(`/teacher/tests/${test._id}`)
+        if (!data.success) throw new Error(data.message || 'Unable to delete test.')
+        setTests(previous => previous.filter(item => item._id !== test._id))
+        showSuccess(data.message || 'Test deleted.')
+      } else {
+        const endpoint = type
+        const { data } = await API.patch(`/teacher/tests/${test._id}/${endpoint}`)
+        await fetchTests({ silent: true })
+        showSuccess(data.message || `Test ${type}ed.`)
+      }
+      setConfirmation(null)
+    } catch (err) {
+      showError(err.response?.data?.message || err.message || `Unable to ${type} test.`)
+    } finally {
+      setActionBusy(false)
+    }
+  }
 
   if (loading) return <Loading />
 
@@ -99,7 +162,7 @@ export default function Tests() {
           <span className="question-empty-mark" aria-hidden="true">!</span>
           <div>
             <h2>Tests could not be loaded</h2>
-            <p>Please check your connection and try again.</p>
+            <p>{feedback || 'Please check your connection and try again.'}</p>
           </div>
           <button className="button" type="button" onClick={fetchTests}>Try again</button>
         </div>
@@ -114,6 +177,23 @@ export default function Tests() {
         </section>
       ) : (
         <section className="tests-list-card">
+          <div className="locking-explainer" aria-label="How test protection works">
+            <div className="locking-explainer-card">
+              <span className="locking-explainer-icon" aria-hidden="true">⌑</span>
+              <div>
+                <strong>Your lock, your choice</strong>
+                <p>Manual locking is available only while a test is drafted. It does not change the lifecycle status.</p>
+              </div>
+            </div>
+            <div className="locking-explainer-card automatic">
+              <span className="locking-explainer-icon" aria-hidden="true">◆</span>
+              <div>
+                <strong>Exam records stay safe</strong>
+                <p>Publishing makes test content immutable. Closing stops new attempts while preserving existing records.</p>
+              </div>
+            </div>
+          </div>
+          {feedback && <p className="resource-action-feedback" role="status">{feedback}</p>}
           <div className="tests-filter-grid" aria-label="Filter tests">
             <label className="tests-filter-field">
               <span>Title</span>
@@ -150,7 +230,7 @@ export default function Tests() {
                 <option value="all">All statuses</option>
                 <option value="closed">Closed</option>
                 <option value="available">Available</option>
-                <option value="draft">Draft</option>
+                <option value="drafted">Drafted</option>
                 <option value="upcoming">Upcoming</option>
               </select>
             </label>
@@ -164,7 +244,12 @@ export default function Tests() {
           {filteredTests.length > 0 ? (
             <ul className="tests-list">
               {filteredTests.map(test => (
-                <TestList key={test._id} test={test} handleDelete={handleDelete} />
+                <TestList
+                  key={test._id}
+                  test={test}
+                  handleDelete={handleDelete}
+                  handleToggleLock={handleToggleLock}
+                />
               ))}
             </ul>
           ) : (
@@ -173,6 +258,12 @@ export default function Tests() {
         </section>
       )}
     </div>
+    <ConfirmActionDialog
+      action={confirmation}
+      busy={actionBusy}
+      onCancel={closeConfirmation}
+      onConfirm={executeConfirmedAction}
+    />
     </main>
   )
 }

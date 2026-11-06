@@ -1,7 +1,36 @@
 import mongoose from "mongoose";
 import Test from "../models/Test.js";
-import Question from "../models/Question.js";
 import Submission from "../models/Submission.js";
+import {
+  acquireTestLifecycleWriteLock,
+  acquireQuestionWriteLocks,
+  createAttemptSnapshot,
+  gradeAttemptAnswers,
+} from "../services/resourceProtection.js";
+
+const serializeSubmissionWithSnapshots = (submission) => {
+  const result = submission.toObject();
+  const snapshotsByQuestion = new Map(
+    (result.questionSnapshots || []).map(question => [String(question.question), question])
+  );
+  result.answers = result.answers.map(answer => {
+    const questionId = answer.question?._id || answer.question;
+    const snapshot = answer.questionSnapshot || snapshotsByQuestion.get(String(questionId));
+    const { question: snapshotQuestionId, ...snapshotFields } = snapshot || {};
+    return {
+      ...answer,
+      question: snapshot
+        ? { _id: questionId || snapshotQuestionId, ...snapshotFields }
+        : answer.question,
+    };
+  });
+  const test = result.test?.toObject?.() || result.test;
+  if (test || result.testSnapshot) {
+    result.test = { ...(test || {}), ...(result.testSnapshot || {}) };
+  }
+  result.passPercentage = result.testSnapshot?.passPercentage ?? result.test?.passPercentage;
+  return result;
+};
 
 export const getStudentDashboard = async (req, res) => {
   try {
@@ -142,7 +171,7 @@ export const getAssignedTests = async (req, res) => {
   try {
     const tests = await Test.find({
         assignedStudents: req.user._id,
-        status: { $ne: "draft" },
+        status: { $nin: ["draft", "drafted"] },
         questions: { $exists: true, $not: { $size: 0 } }
     })
     .select("-__v")
@@ -164,10 +193,17 @@ export const getAssignedTests = async (req, res) => {
     const enhanced = await Promise.all(tests.map(async (test) => {
       let isPublished = false;
       let testStatus = null;
-      const attemptCount = await Submission.countDocuments({
+      const [attemptCount, activeAttempt] = await Promise.all([
+        Submission.countDocuments({
           test: test._id,
           student: req.user._id
-      });
+        }),
+        Submission.exists({
+          test: test._id,
+          student: req.user._id,
+          submittedAt: null,
+        }),
+      ]);
       const { allowRetake, maxAttempts } = test.attemptRules;
       const attemptsLeft = Math.max(maxAttempts - attemptCount,0);
       if (test.startTime && new Date() < test.startTime) {
@@ -186,8 +222,8 @@ export const getAssignedTests = async (req, res) => {
           attemptCount,
           attemptsLeft,
           maxAttempts,
-          canStart: isPublished && attemptCount < 1,
-          canAttempt: isPublished && attemptsLeft > 0,
+          canStart: Boolean(activeAttempt) || (isPublished && attemptCount < 1),
+          canAttempt: Boolean(activeAttempt) || (isPublished && attemptsLeft > 0),
           canRetake: isPublished && allowRetake && attemptsLeft > 0 && attemptCount > 0,
           canViewResult: attemptCount > 0
       };
@@ -217,10 +253,18 @@ export const getTestQuestions = async (req, res) => {
     // ensure student is assigned
     if (!test.assignedStudents.map(String).includes(String(req.user._id))) return res.status(403).json({ message: "Not assigned this test" });
 
-    // respect publishing and scheduling
+    // Let students resume attempts started before the test was automatically closed.
     const now = new Date();
-    if (test.status && test.status !== 'published') return res.status(403).json({ message: 'Test not available' });
-    if (test.startTime && new Date(test.startTime) > now) return res.status(403).json({ message: 'Test not started yet' });
+    const activeAttempt = await Submission.exists({
+      test: testId,
+      student: req.user._id,
+      submittedAt: null,
+    });
+    if (!activeAttempt) {
+      if (test.status && test.status !== 'published') return res.status(403).json({ message: 'Test not available' });
+      if (test.startTime && new Date(test.startTime) > now) return res.status(403).json({ message: 'Test not started yet' });
+      if (test.dueDate && new Date(test.dueDate) <= now) return res.status(403).json({ message: 'Test is closed' });
+    }
     res.json({ test, questions: test.questions });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -228,36 +272,76 @@ export const getTestQuestions = async (req, res) => {
 };
 
 export const getCreateAttemptID = async (req, res) => {
+  let session;
+  let responseStatus = 500;
   try {
     const { testId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(testId)) return res.status(400).json({ message: "Invalid test id" });
 
-    const test = await Test.findById(testId);
-    if (!test) return res.status(404).json({ message: "Test not found" });
+    session = await mongoose.startSession();
+    let submissionId;
+    await session.withTransaction(async () => {
+      await acquireTestLifecycleWriteLock(testId, session);
+      const test = await Test.findById(testId).populate("questions").session(session);
+      if (!test) {
+        responseStatus = 404;
+        throw new Error("Test not found");
+      }
 
-    // ensure student is assigned
-    if (!test.assignedStudents.map(String).includes(String(req.user._id))) return res.status(403).json({ message: "Not assigned this test" });
+      if (!test.assignedStudents.map(String).includes(String(req.user._id))) {
+        responseStatus = 403;
+        throw new Error("Not assigned this test");
+      }
 
-    // respect publishing and scheduling
-    const now = new Date();
-    if (test.status && test.status !== 'published') return res.status(403).json({ message: 'Test not available' });
-    if (test.startTime && new Date(test.startTime) > now) return res.status(403).json({ message: 'Test not started yet' });
+      const existing = await Submission.findOne({
+        test: testId,
+        student: req.user._id,
+        submittedAt: null,
+      }).session(session);
+      if (existing) {
+        if (!existing.questionSnapshots?.length) {
+          existing.questionSnapshots = createAttemptSnapshot(test, test.questions).questionSnapshots;
+        }
+        if (!existing.testSnapshot) {
+          existing.testSnapshot = createAttemptSnapshot(test, []).testSnapshot;
+        }
+        await existing.save({ session });
+        submissionId = existing._id;
+        return;
+      }
 
-    const existing = await Submission.findOne({ test: testId, student: req.user._id, submittedAt: null });
-    if (existing) {
-      return res.json({ submissionId: existing._id });
-    }
+      const now = new Date();
+      if (test.status !== "published") {
+        responseStatus = 403;
+        throw new Error("Test not available");
+      }
+      if (test.startTime && new Date(test.startTime) > now) {
+        responseStatus = 403;
+        throw new Error("Test not started yet");
+      }
+      if (test.dueDate && new Date(test.dueDate) <= now) {
+        responseStatus = 403;
+        throw new Error("Test is closed");
+      }
 
-    const submission = await Submission.create({
-      test: testId,
-      student: req.user._id,
-      startedAt: new Date(),
+      await acquireQuestionWriteLocks(test.questions.map(question => question._id), session);
+      const submission = new Submission({
+        test: testId,
+        student: req.user._id,
+        startedAt: now,
+        ...createAttemptSnapshot(test, test.questions),
+      });
+      await submission.save({ session });
+      submissionId = submission._id;
     });
 
-    res.json({ submissionId: submission._id });
+    return res.json({ submissionId });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    if (responseStatus === 500 && err.statusCode) responseStatus = err.statusCode;
+    return res.status(responseStatus).json({ message: err.message });
+  } finally {
+    if (session) await session.endSession();
   }
 };
 
@@ -267,41 +351,52 @@ export const submitTest = async (req, res) => {
     const { answers, submissionId } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(testId)) return res.status(400).json({ message: "Invalid test id" });
-    const test = await Test.findById(testId);
+    const test = await Test.findById(testId).populate("questions");
     if (!test) return res.status(404).json({ message: "Test not found" });
     if (!test.assignedStudents.map(String).includes(String(req.user._id))) return res.status(403).json({ message: "Not assigned this test" });
-
-    // respect publishing, scheduling and attempt rules
-    const now = new Date();
-    if (test.status && test.status !== 'published') return res.status(403).json({ message: 'Test not available' });
-    if (test.startTime && new Date(test.startTime) > now) return res.status(403).json({ message: 'Test not started yet' });
-
-    // const attemptsCount = await Submission.countDocuments({ test: testId, student: req.user._id });
-    // const maxAttempts = test.attemptRules?.maxAttempts ?? 1;
-    // if (attemptsCount >= maxAttempts) return res.status(403).json({ message: 'Maximum attempts reached' });
-
-    // Load correct answers
-    const questionIds = (answers || []).map(a => a.question).filter(id => mongoose.Types.ObjectId.isValid(id));
-    const questions = await Question.find({ _id: { $in: questionIds } });
-
-    // compute score
-    let correct = 0;
-    let score = 0;
-    for (const ans of (answers || [])) {
-      const q = questions.find(x => x._id.toString() === ans.question);
-      if (q && q.correctOption === ans.selected) {
-        score += q.mark || 1; // default 1 mark if not specified
-        correct++;
-      }
-    }
-    const wrong = (answers || []).length - correct;
-    // const score = questions.length ? (correct / questions.length) * 100 : 0;
+    if (!Array.isArray(answers)) return res.status(400).json({ message: "Answers must be provided as a list" });
 
     if (!mongoose.Types.ObjectId.isValid(submissionId)) return res.status(400).json({ message: "Invalid submission id" });
     const submission = await Submission.findOne({ _id: submissionId, test: testId, student: req.user._id });
     if (!submission) return res.status(404).json({ message: "Submission not found" });
+    if (submission.submittedAt) return res.status(409).json({ message: "This attempt has already been submitted" });
 
-    submission.answers = answers;
+    const now = new Date();
+    if (!submission.startedAt) return res.status(409).json({ message: "This attempt has no start time" });
+    if (test.status && test.status !== 'published' && !submission.questionSnapshots?.length) {
+      return res.status(403).json({ message: 'Test not available' });
+    }
+    if (!submission.questionSnapshots?.length) {
+      if (test.startTime && new Date(test.startTime) > now) return res.status(403).json({ message: 'Test not started yet' });
+      if (test.dueDate && new Date(test.dueDate) <= now) return res.status(403).json({ message: 'Test is closed' });
+    }
+
+    const allowedQuestionIds = new Set(test.questions.map(question => String(question._id)));
+    if (answers.some(answer =>
+      !answer ||
+      !mongoose.Types.ObjectId.isValid(answer.question) ||
+      !["a", "b", "c", "d"].includes(answer.selected) ||
+      !allowedQuestionIds.has(String(answer.question))
+    )) {
+      return res.status(400).json({ message: "One or more answers are invalid for this test" });
+    }
+
+    const questionSnapshots = submission.questionSnapshots?.length
+      ? submission.questionSnapshots
+      : createAttemptSnapshot(test, test.questions).questionSnapshots;
+    const {
+      answerSnapshots,
+      score,
+      correct,
+      wrong,
+    } = gradeAttemptAnswers(answers, questionSnapshots);
+    if (answerSnapshots.some(answer => !answer)) {
+      return res.status(400).json({ message: "One or more questions are not part of this attempt" });
+    }
+
+    submission.questionSnapshots = questionSnapshots;
+    submission.testSnapshot = submission.testSnapshot || createAttemptSnapshot(test, []).testSnapshot;
+    submission.answers = answerSnapshots;
     submission.correct = correct;
     submission.wrong = wrong;
     submission.score = score;
@@ -322,14 +417,15 @@ export const viewResult = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(submittedID)) return res.status(400).json({ message: "Invalid submission id" });
     const submission = await Submission
                       .findOne({
+                        _id: submittedID,
                         test: testId,
-                        student: req.user._id
+                        student: req.user._id,
+                        submittedAt: { $ne: null },
                       })
-                      .sort({ submittedAt: -1 }) // latest submitted one
-                      .populate("test", "totalMarks")
+                      .populate("test", "title totalMarks passPercentage durationMinutes")
                       .populate("answers.question");
     if (!submission) return res.status(404).json({ message: "Result not found" });
-    res.json(submission);
+    res.json(serializeSubmissionWithSnapshots(submission));
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -339,7 +435,11 @@ export const getSubmissions = async (req, res) => {
   try {
     const { testId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(testId)) return res.status(400).json({ message: "Invalid test id" });
-    const submissions = await Submission.find({ student: req.user._id, test: testId })
+    const submissions = await Submission.find({
+      student: req.user._id,
+      test: testId,
+      submittedAt: { $ne: null },
+    })
       .populate({
           path: 'test',
           select: 'title description subject totalMarks passPercentage',
@@ -350,11 +450,15 @@ export const getSubmissions = async (req, res) => {
         })
       .sort({ submittedAt: -1 });
     const result = submissions.map(submission => {
-      const passPercentage = submission.test.passPercentage || 50;
-      const totalMarks = submission.test?.totalMarks || 0;
+      const snapshot = submission.testSnapshot || {};
+      const testData = submission.test?.toObject?.() || submission.test || {};
+      const passPercentage = snapshot.passPercentage ?? testData.passPercentage ?? 50;
+      const totalMarks = snapshot.totalMarks ?? testData.totalMarks ?? 0;
       const passed = totalMarks > 0 ? Math.round((submission.score / totalMarks) * 100) >= passPercentage : false;
+      const row = serializeSubmissionWithSnapshots(submission);
+      row.test = { ...testData, ...snapshot };
       return {
-        ...submission.toObject(),
+        ...row,
         result: passed ? 'Pass' : 'Fail',
       }
     });

@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import API from "../services/api";
 import "../assets/css/ManageQuestions.css";
 
-export default function ManageQuestions() {
+export default function ManageQuestions({ readOnly = false }) {
   const { testId } = useParams();
   const [testName, setTestName] = useState("");
+  const [testProtectionReason, setTestProtectionReason] = useState("");
 
   const [testQuestions, setTestQuestions] = useState([]);
   const [allQuestions, setAllQuestions] = useState([]);
@@ -20,11 +21,14 @@ export default function ManageQuestions() {
       setLoading(true);
       setError("");
       const testRes = await API.get(`/teacher/tests/${testId}/questions`);
-      const allRes = await API.get(`/teacher/tests/${testId}/accessibleQuestions`); // get all accessible questions by teacher and quiz type
+      const allQuestionsRes = readOnly
+        ? { data: [] }
+        : await API.get(`/teacher/tests/${testId}/accessibleQuestions`);
 
       setTestName(testRes.data.testName || "");
+      setTestProtectionReason(testRes.data.protectionReason || "");
       setTestQuestions(testRes.data.questions || []);
-      setAllQuestions(allRes.data || []);
+      setAllQuestions(allQuestionsRes.data || []);
     } catch (err) {
       console.error(err);
       setError("Unable to load the questions for this test. Please try again.");
@@ -58,32 +62,23 @@ export default function ManageQuestions() {
 
   // ⚡ Optimistic Add
   const addQuestion = async (questionId) => {
-    setTestQuestions((prev) => [
-      ...prev,
-      allQuestions.find((q) => q._id === questionId),
-    ]);
-
     try {
       await API.post(`/teacher/tests/${testId}/questions/add`, {
         questionId,
       });
+      await load();
     } catch (err) {
-      console.error(err);
-      load(); // fallback
+      setError(err.response?.data?.message || "Unable to add this question.");
     }
   };
 
   // ⚡ Optimistic Remove
   const removeQuestion = async (questionId) => {
-    setTestQuestions((prev) =>
-      prev.filter((q) => q._id !== questionId)
-    );
-
     try {
       await API.delete(`/teacher/tests/${testId}/questions/${questionId}/remove`);
+      await load();
     } catch (err) {
-      console.error(err);
-      load(); // fallback
+      setError(err.response?.data?.message || "Unable to remove this question.");
     }
   };
 
@@ -94,9 +89,13 @@ export default function ManageQuestions() {
         <div className="manage-questions-page">
           <div className="page-header">
             <div>
-              <p className="page-eyebrow">Assessment builder</p>
-              <h1>{testName || 'Manage questions'}</h1>
-              <p className="page-description">Choose which questions belong in this test. Add or remove questions as needed.</p>
+              <p className="page-eyebrow">{readOnly ? 'Assessment details' : 'Assessment builder'}</p>
+              <h1>{testName || (readOnly ? 'View questions' : 'Manage questions')}</h1>
+              <p className="page-description">
+                {readOnly
+                  ? 'Questions included in this test.'
+                  : 'Choose which questions belong in this test. Add or remove questions as needed.'}
+              </p>
             </div>
             <div className="selected-question-count">
               <strong>{testQuestions.length}</strong>
@@ -104,7 +103,11 @@ export default function ManageQuestions() {
             </div>
           </div>
 
-          <section className="question-library-toolbar" aria-label="Find questions">
+          {!readOnly && testProtectionReason && (
+            <p className="resource-protection-note" role="note">{testProtectionReason}</p>
+          )}
+
+          {!readOnly && <section className="question-library-toolbar" aria-label="Find questions">
             <label className="question-search">
               <span aria-hidden="true">⌕</span>
               <span className="sr-only">Search questions</span>
@@ -132,19 +135,51 @@ export default function ManageQuestions() {
                 </button>
               ))}
             </div>
-          </section>
+          </section>}
 
           {error ? (
             <section className="question-empty-state" role="alert">
               <span className="question-empty-mark" aria-hidden="true">!</span>
               <div>
-                <h2>Question library unavailable</h2>
+                <h2>{readOnly ? 'Test questions unavailable' : 'Question library unavailable'}</h2>
                 <p>{error}</p>
               </div>
               <button type="button" className="button" onClick={load}>Try again</button>
             </section>
           ) : loading ? (
-            <div className="question-loading-state" role="status">Loading question library…</div>
+            <div className="question-loading-state" role="status">
+              {readOnly ? 'Loading test questions…' : 'Loading question library…'}
+            </div>
+          ) : readOnly ? (
+            <section className="question-builder-panel test-question-view" aria-labelledby="test-question-view-heading">
+              <div className="question-builder-heading">
+                <div>
+                  <h2 id="test-question-view-heading">Questions in this test</h2>
+                  <p>{testQuestions.length} {testQuestions.length === 1 ? 'question' : 'questions'}</p>
+                </div>
+                <span className="selected-question-badge">{testQuestions.length}</span>
+              </div>
+              <div className="question-builder-list">
+                {testQuestions.length === 0 ? (
+                  <p className="question-list-empty">No questions have been added to this test.</p>
+                ) : testQuestions.map((question, index) => (
+                  <article key={question._id} className="builder-question-card selected">
+                    <div className="builder-question-copy">
+                      <p className="builder-question-meta">Question {index + 1}</p>
+                      <p className="builder-question-text">{question.questionText}</p>
+                      <p className="builder-question-meta">
+                        {question.subject?.subjectName || 'General subject'} <span>·</span> {question.mark ?? 0} {question.mark === 1 ? 'mark' : 'marks'} <span>·</span> <span className={`difficulty-badge difficulty-${question.difficulty || 'medium'}`}>{question.difficulty || 'medium'}</span>
+                      </p>
+                      <div className="builder-option-preview">
+                        {["a", "b", "c", "d"].filter(key => question.options?.[key]).map(key => (
+                          <span key={key}><strong>{key.toUpperCase()}</strong> {question.options[key]}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           ) : (
           <div className="question-builder-grid">
             <section className="question-builder-panel">
@@ -174,7 +209,15 @@ export default function ManageQuestions() {
                       </div>
                       {added
                         ? <span className="question-added-status">Added</span>
-                        : <button type="button" className="button builder-add-button" onClick={() => addQuestion(q._id)}>+ Add</button>}
+                        : <button
+                            type="button"
+                            className="button builder-add-button"
+                            onClick={() => addQuestion(q._id)}
+                            disabled={Boolean(testProtectionReason)}
+                            title={testProtectionReason || undefined}
+                          >
+                            + Add
+                          </button>}
                     </article>
                   );
                 })}
@@ -203,7 +246,15 @@ export default function ManageQuestions() {
                         {q.subject?.subjectName || 'General subject'} <span>·</span> {q.mark ?? 0} {q.mark === 1 ? 'mark' : 'marks'} <span>·</span> <span className={`difficulty-badge difficulty-${q.difficulty || 'medium'}`}>{q.difficulty || 'medium'}</span>
                       </p>
                     </div>
-                    <button type="button" className="builder-remove-button" onClick={() => removeQuestion(q._id)}>Remove</button>
+                    <button
+                      type="button"
+                      className="builder-remove-button"
+                      onClick={() => removeQuestion(q._id)}
+                      disabled={Boolean(testProtectionReason)}
+                      title={testProtectionReason || undefined}
+                    >
+                      Remove
+                    </button>
                   </article>
                 ))}
               </div>

@@ -15,7 +15,7 @@ export default function ViewResult(){
       setSubmission(res.data)
     }
     load()
-  }, [testId])
+  }, [testId, submittedID])
 
   if (!submission) return <div className="app-shell"><Sidebar /><main className="main"><div className="student-results-state empty">No result found for this attempt.</div></main></div>
 

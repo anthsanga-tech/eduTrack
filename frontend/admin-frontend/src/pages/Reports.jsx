@@ -117,7 +117,7 @@ export default function Reports() {
             <label><span>End date</span><input className="input" type="date" value={dateTo} onChange={event => setDateTo(event.target.value)} /></label>
             <label><span>Subject</span><select className="input" value={subject} onChange={event => setSubject(event.target.value)}><option value="all">All subjects</option>{subjects.map(item => <option value={item._id} key={item._id}>{item.subjectName}</option>)}</select></label>
             <label><span>Teacher</span><select className="input" value={teacher} onChange={event => setTeacher(event.target.value)}><option value="all">All teachers</option>{teachers.map(item => <option value={item._id} key={item._id}>{item.name}</option>)}</select></label>
-            <label><span>Test status</span><select className="input" value={status} onChange={event => setStatus(event.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="available">Available</option><option value="upcoming">Upcoming</option><option value="closed">Closed</option></select></label>
+            <label><span>Test status</span><select className="input" value={status} onChange={event => setStatus(event.target.value)}><option value="all">All statuses</option><option value="drafted">Drafted</option><option value="available">Available</option><option value="upcoming">Upcoming</option><option value="closed">Closed</option></select></label>
             <button className="button admin-report-run" type="submit" disabled={loading}>{loading ? 'Loading report…' : 'Run report'}</button>
           </form>
         </section>

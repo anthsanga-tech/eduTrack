@@ -6,10 +6,10 @@ import mongoose from "mongoose";
 
 const validRoles = ["admin", "teacher", "student"];
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const validReportStatuses = ["draft", "available", "upcoming", "closed"];
+const validReportStatuses = ["drafted", "draft", "available", "upcoming", "closed"];
 
 const getEffectiveTestStatus = (test, now = new Date()) => {
-  if (test.status === "draft") return "draft";
+  if (test.status === "draft" || test.status === "drafted") return "drafted";
   if (test.status === "closed" || (test.dueDate && now >= new Date(test.dueDate))) return "closed";
   if (test.startTime && now < new Date(test.startTime)) return "upcoming";
   return test.status === "published" ? "available" : test.status;

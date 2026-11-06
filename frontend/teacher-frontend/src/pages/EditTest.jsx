@@ -4,6 +4,7 @@ import "../assets/css/CreateTest.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { showSuccess, showError } from "../../../utils/utils";
 import Loading from "../components/Loading.jsx";
+import { getTestLifecycleActions } from "../utils/testLifecycle.js";
 
 export default function EditTest() {
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ export default function EditTest() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const [status, setStatus] = useState('draft');
   const [startTime, setStartTime] = useState('');
   const [allowRetake, setAllowRetake] = useState(false);
   const [maxAttempts, setMaxAttempts] = useState(1);
@@ -45,6 +45,10 @@ export default function EditTest() {
       ]);
 
       const test = testRes.data;
+      if (!getTestLifecycleActions(test).canEdit) {
+        setError(test.editProtectionReason || "This test is read-only.");
+        return;
+      }
 
       setTitle(test.title);
       setDescription(test.description || "");
@@ -58,7 +62,6 @@ export default function EditTest() {
       setSelectedSubject(test.subject?._id || "");
       setDurationMinutes(test.durationMinutes || "");
 
-      setStatus(test.status || 'draft');
       setStartTime(test.startTime ? new Date(test.startTime).toISOString().slice(0,16) : '');
       setAllowRetake(!!test.attemptRules?.allowRetake);
       setMaxAttempts(test.attemptRules?.maxAttempts ?? 1);
@@ -71,7 +74,7 @@ export default function EditTest() {
       setSubjects(subjectsRes.data);
 
     } catch (err) {
-      setError("Failed to load test data");
+      setError(err.response?.data?.message || "Failed to load test data");
     } finally {
       setLoading(false);
     }
@@ -106,7 +109,6 @@ export default function EditTest() {
         durationMinutes: Number(durationMinutes),
         subject: selectedSubject,
         assignedStudents: selectedStudents,
-        status,
         startTime: startTime ? new Date(startTime).toISOString() : null,
         attemptRules: { allowRetake, maxAttempts: Number(maxAttempts) }
       };
@@ -118,7 +120,7 @@ export default function EditTest() {
         navigate("/tests");
       }
     } catch (err) {
-      showError("Failed to update test");
+      showError(err.response?.data?.message || "Unable to update test.");
       console.error(err);
     } finally {
       setSaving(false);
@@ -256,19 +258,6 @@ export default function EditTest() {
                 value={durationMinutes}
                 onChange={e => setDurationMinutes(e.target.value)}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="test-status">Status</label>
-              <select
-                id="test-status"
-                className="w-full border rounded-lg p-2.5 bg-white"
-                value={status}
-                onChange={e => setStatus(e.target.value)}
-              >
-                <option value="draft">draft</option>
-                <option value="published">published</option>
-                <option value="closed">closed</option>
-              </select>
             </div>
           </div>
 

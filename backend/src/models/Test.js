@@ -33,6 +33,22 @@ const testSchema = new mongoose.Schema(
       required: true,
     },
 
+    isLocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    lockedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    lockedAt: {
+      type: Date,
+      default: null,
+    },
+
     assignedStudents: [
       { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     ],
@@ -43,8 +59,8 @@ const testSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "published", "closed"],
-      default: "draft",
+      enum: ["drafted", "draft", "published", "closed"],
+      default: "drafted",
     },
 
     startTime: Date,

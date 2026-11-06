@@ -18,7 +18,6 @@ export default function CreateTest() {
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState("");
 
-  const [status, setStatus] = useState('draft'); // draft | published | closed
   const [startTime, setStartTime] = useState(''); // ISO datetime-local string
   const [allowRetake, setAllowRetake] = useState(false);
   const [maxAttempts, setMaxAttempts] = useState(1);
@@ -54,7 +53,6 @@ export default function CreateTest() {
       durationMinutes: Number(durationMinutes),
       subject: selectedSubject,
       assignedStudents: selectedStudents,
-      status,
       startTime: startTime ? new Date(startTime).toISOString() : null,
       attemptRules: { allowRetake, maxAttempts: Number(maxAttempts) }
     };
@@ -152,14 +150,6 @@ export default function CreateTest() {
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="test-duration">Duration (minutes)</label>
           <input id="test-duration" type="number" min="1" placeholder="60" className="w-full border rounded-lg p-2.5" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="test-status">Status</label>
-          <select id="test-status" className="w-full border rounded-lg p-2.5 bg-white" value={status} onChange={e => setStatus(e.target.value)}>
-            <option>draft</option>
-            <option>published</option>
-            <option>closed</option>
-          </select>
         </div>
       </div>
 

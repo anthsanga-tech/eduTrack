@@ -15,3 +15,24 @@
 .builder-remove-button {
   white-space: nowrap;
 }
+
+.test-question-view .question-builder-list {
+  max-height: none;
+}
+
+.test-question-view .builder-question-card {
+  justify-content: flex-start;
+}
+
+.test-question-view .builder-question-copy {
+  width: 100%;
+}
+
+.test-question-view .builder-question-meta:first-child {
+  margin-top: 0;
+  color: #7a8a84;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}

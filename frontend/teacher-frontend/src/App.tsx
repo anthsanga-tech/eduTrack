@@ -36,6 +36,7 @@ export default function App() {
           <Route path="/tests/create" element={<CreateTest />} />
           <Route path="/tests/edit/:testId" element={<EditTest />} />
           <Route path="/tests/manage/:testId" element={<ManageQuestions />}/>
+          <Route path="/tests/view/:testId" element={<ManageQuestions readOnly />}/>
           <Route path="/questions" element={<Questions />} />
           <Route path="/questions/create" element={<CreateQuestion />} />
           <Route path="/teacher/questions/:questionId/edit" element={<EditQuestion />} />

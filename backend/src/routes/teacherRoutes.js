@@ -12,6 +12,9 @@ import {
     getTestById,
     getMyTestsBySubject,
     deleteTest,
+    archiveTest,
+    closeTest,
+    publishTest,
     getAllStudents,
     getQuestionsByTest,
     getQuestionsByTeacher,
@@ -23,6 +26,12 @@ import {
     addQuestionToTest,
     removeQuestionFromTest,
 } from "../controllers/teacherController.js";
+import {
+    lockQuestion,
+    lockTest,
+    unlockQuestion,
+    unlockTest,
+} from "../controllers/resourceLockController.js";
 
 const router = express.Router();
 router.use(protect, requireRole("teacher"));
@@ -42,6 +51,11 @@ router.get("/analytics", getTeacherAnalytics);
 router.get("/tests", getMyTests);
 router.get("/tests/:testId", getTestById);
 router.get("/subjects/:subjectId/tests", getMyTestsBySubject);
+router.patch("/tests/:testId/lock", lockTest);
+router.patch("/tests/:testId/unlock", unlockTest);
+router.patch("/tests/:testId/publish", publishTest);
+router.patch("/tests/:testId/close", closeTest);
+router.patch("/tests/:testId/archive", archiveTest);
 router.delete("/tests/:testId", deleteTest);
 router.post("/tests/:testId/assign", assignTest); // Assign test to specific students
 router.put("/tests/:testId", updateTest);
@@ -55,5 +69,7 @@ router.get("/tests/:testId/questions", getQuestionsByTest);
 router.get("/questions", getQuestionsByTeacher);
 router.get("/questions/:questionId", getQuestionById);
 router.put("/questions/:questionId", updateQuestion);
+router.patch("/questions/:questionId/lock", lockQuestion);
+router.patch("/questions/:questionId/unlock", unlockQuestion);
 router.delete("/questions/:questionId", deleteQuestion);
 export default router;

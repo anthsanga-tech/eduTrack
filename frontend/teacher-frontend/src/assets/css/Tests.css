@@ -6,6 +6,44 @@
   list-style: none;
 }
 
+.tests-page .tests-list-card .test-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  align-items: start;
+  column-gap: clamp(18px, 3vw, 34px);
+  row-gap: 12px;
+}
+
+.tests-page .test-info {
+  min-width: 0;
+}
+
+.tests-page .test-management-panel {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 10px;
+}
+
+.tests-page .test-actions {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tests-page .test-management-panel .resource-protection-card {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.tests-page .resource-protection-card > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .tests-list-card .btn-test:focus-visible,
 .tests-page .button:focus-visible {
   outline: 3px solid rgba(22, 131, 111, 0.3);
@@ -39,4 +77,29 @@
   color: #71817b;
   font-size: .88rem;
   text-align: center;
+}
+
+@media (max-width: 760px) {
+  .tests-page .tests-list-card .test-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tests-page .test-management-panel {
+    width: 100%;
+  }
+
+  .tests-page .test-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .tests-page .test-actions {
+    flex-wrap: wrap;
+  }
+
+  .tests-page .test-actions > * {
+    flex: 1 1 100px;
+    text-align: center;
+  }
 }

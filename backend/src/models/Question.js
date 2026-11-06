@@ -44,6 +44,27 @@ const questionSchema = new mongoose.Schema(
             required: true,
         },
 
+        isLocked: {
+            type: Boolean,
+            default: false,
+        },
+
+        isSystemProtected: {
+            type: Boolean,
+            default: false,
+        },
+
+        lockedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+
+        lockedAt: {
+            type: Date,
+            default: null,
+        },
+
         allowedTeachers: [
             {
                 type: mongoose.Schema.Types.ObjectId,

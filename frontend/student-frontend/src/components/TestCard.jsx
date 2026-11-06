@@ -58,7 +58,7 @@ export default function TestCard({ test, testStatus, testAccess }){
 
       <div className="student-test-actions">
         {canStart
-          ? <Link to={`/tests/${test._id}/take`} className="student-test-action student-test-action-primary">Start test <span aria-hidden="true">→</span></Link>
+          ? <Link to={`/tests/${test._id}/take`} className="student-test-action student-test-action-primary">{testAccess?.attemptCount > 0 ? 'Continue test' : 'Start test'} <span aria-hidden="true">→</span></Link>
           : <button className="student-test-action student-test-action-disabled" disabled>Start test</button>}
         {canView
           ? <Link to={`/tests/${test._id}/results`} className="student-test-action student-test-action-secondary">Results</Link>

@@ -13,6 +13,7 @@ export default function EditQuestion() {
   const [teachers, setTeachers] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [teachersError, setTeachersError] = useState("");
 
   const [form, setForm] = useState({
     questionText: "",
@@ -32,6 +33,10 @@ export default function EditQuestion() {
     try {
       const res = await API.get(`/teacher/questions/${questionId}`);
       const q = res.data;
+      if (!q.canEdit) {
+        setError(q.protectionReason || "This question is not available for editing.");
+        return;
+      }
       setForm({
         questionText: q.questionText,
         options: q.options,
@@ -41,7 +46,7 @@ export default function EditQuestion() {
         allowedTeachers: q.allowedTeachers || [],
       });
     } catch (err) {
-      showError("Failed to load question");
+      setError(err.response?.data?.message || "Failed to load question.");
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,7 @@ export default function EditQuestion() {
       const res = await API.get("/teacher/users");
       setTeachers(res.data);
     } catch (err) {
-      setError("Failed to load teachers");
+      setTeachersError("Failed to load teachers");
     }
   };
 
@@ -91,13 +96,29 @@ export default function EditQuestion() {
       }
       navigate("/questions")
     } catch (err) {
-      showError("Error : " + err.message);
+      const message = err.response?.data?.message || "Unable to update question.";
+      if (err.response?.status === 409) setError(message);
+      showError(message);
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) return <Loading />;
+  if (error) {
+    return (
+      <main className="main">
+        <section className="question-empty-state" role="alert">
+          <span className="question-empty-mark" aria-hidden="true">!</span>
+          <div>
+            <h2>Question unavailable</h2>
+            <p>{error}</p>
+          </div>
+          <button className="button" type="button" onClick={() => navigate("/questions")}>Back to questions</button>
+        </section>
+      </main>
+    );
+  }
 
   return (
       <main className="main">
@@ -212,7 +233,7 @@ export default function EditQuestion() {
                       </button>
                     ))}
                   </div>
-                  {error && <p className="page-feedback page-feedback-error" role="alert">{error}</p>}
+                  {teachersError && <p className="page-feedback page-feedback-error" role="alert">{teachersError}</p>}
                 </div>
                 <div className="form-actions">
                     <button type="submit" className="btn primary" disabled={saving}>
