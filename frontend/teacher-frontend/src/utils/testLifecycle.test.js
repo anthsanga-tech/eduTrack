@@ -1,10 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  getTestStatusChoices,
   getTestLifecycleActions,
   getTestLifecycleBadges,
   getTestLifecycleStatus,
 } from "./testLifecycle.js";
+
+test("status choices allow only lifecycle-safe transitions", () => {
+  assert.deepEqual(getTestStatusChoices("drafted", { canPublish: true }), [
+    { value: "drafted", label: "Draft", disabled: false },
+    { value: "published", label: "Published", disabled: false },
+    { value: "closed", label: "Closed", disabled: true },
+  ]);
+  assert.deepEqual(getTestStatusChoices("published", { canClose: false }), [
+    { value: "drafted", label: "Draft", disabled: true },
+    { value: "published", label: "Published", disabled: false },
+    { value: "closed", label: "Closed", disabled: true },
+  ]);
+  assert.deepEqual(getTestStatusChoices("published", { canClose: true }).map(choice => choice.disabled), [
+    true, false, false,
+  ]);
+  assert.deepEqual(getTestStatusChoices("closed").map(choice => choice.disabled), [
+    true, true, false,
+  ]);
+});
 
 test("drafted unlocked tests expose only backend-approved management actions", () => {
   const actions = getTestLifecycleActions({

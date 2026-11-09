@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import ManageQuestions from "./pages/ManageQuestions.jsx";
 import PasswordReset from "./pages/PasswordReset";
+import Reports from "./pages/Reports.jsx";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
         >
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="/tests" element={<Tests />} />
           <Route path="/tests/create" element={<CreateTest />} />
           <Route path="/tests/edit/:testId" element={<EditTest />} />

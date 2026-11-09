@@ -22,6 +22,7 @@ export default function Sidebar() {
         <NavLink to="/dashboard" className={({isActive}) => `side-link ${isActive ? 'active' : ''}`}>Dashboard</NavLink>
         <NavLink to="/tests" className={({isActive}) => `side-link ${isActive ? 'active' : ''}`}>Tests</NavLink>
         <NavLink to="/questions" className={({isActive}) => `side-link ${isActive ? 'active' : ''}`}>Questions</NavLink>
+        <NavLink to="/reports" className={({isActive}) => `side-link ${isActive ? 'active' : ''}`}>Results &amp; Reports</NavLink>
       </nav>
       <div className="sidebar-footer">
         <button onClick={logout} className="button">Log out</button>

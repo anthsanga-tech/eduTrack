@@ -3,12 +3,14 @@ import API from "../services/api";
 import "../assets/css/CreateTest.css";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../../../utils/utils";
+import { getTestStatusChoices } from "../utils/testLifecycle.js";
 
 export default function CreateTest() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
+  const [status, setStatus] = useState("drafted");
   const [difficultyTags, setDifficultyTags] = useState([]);
   const [dueDate, setDueDate] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
@@ -49,6 +51,7 @@ export default function CreateTest() {
       description,
       difficulty,
       difficultyTags,
+      status,
       dueDate,
       durationMinutes: Number(durationMinutes),
       subject: selectedSubject,
@@ -88,6 +91,23 @@ export default function CreateTest() {
       <div className="assessment-panel-heading">
         <h2>Test details</h2>
         <p>Give students the information they need before they begin.</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="test-status">Status</label>
+        <select
+          id="test-status"
+          className="w-full border rounded-lg p-2.5 bg-white"
+          value={status}
+          onChange={event => setStatus(event.target.value)}
+        >
+          {getTestStatusChoices("drafted").map(choice => (
+            <option key={choice.value} value={choice.value} disabled={choice.disabled}>{choice.label}</option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-slate-500">
+          New tests start as drafts. Add questions before publishing; closed is only available after a test is published.
+        </p>
       </div>
       
       {/* Title */}

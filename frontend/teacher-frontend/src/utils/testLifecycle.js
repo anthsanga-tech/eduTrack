@@ -1,6 +1,15 @@
 export const getTestLifecycleStatus = (test) =>
   test.lifecycleStatus || (test.status === "draft" ? "drafted" : test.status);
 
+export const getTestStatusChoices = (status, { canPublish = false, canClose = false } = {}) => {
+  const lifecycleStatus = status === "draft" ? "drafted" : status;
+  return [
+    { value: "drafted", label: "Draft", disabled: lifecycleStatus !== "drafted" },
+    { value: "published", label: "Published", disabled: lifecycleStatus !== "published" && !(lifecycleStatus === "drafted" && canPublish) },
+    { value: "closed", label: "Closed", disabled: lifecycleStatus !== "closed" && !(lifecycleStatus === "published" && canClose) },
+  ];
+};
+
 const hasCapability = (test, capability) =>
   Object.prototype.hasOwnProperty.call(test, capability);
 

@@ -32,6 +32,13 @@ import {
     unlockQuestion,
     unlockTest,
 } from "../controllers/resourceLockController.js";
+import {
+    exportTestResults,
+    getReportsOverview,
+    getStudentPerformance,
+    getSubmissionDetails,
+    getTestResults,
+} from "../controllers/teacherReportsController.js";
 
 const router = express.Router();
 router.use(protect, requireRole("teacher"));
@@ -48,6 +55,11 @@ router.get("/tests/students", getAllStudents);
 //Test
 router.post("/tests", createTest);
 router.get("/analytics", getTeacherAnalytics);
+router.get("/reports/overview", getReportsOverview);
+router.get("/reports/test-results", getTestResults);
+router.get("/reports/student-performance", getStudentPerformance);
+router.get("/reports/submissions/:submissionId", getSubmissionDetails);
+router.get("/reports/export", exportTestResults);
 router.get("/tests", getMyTests);
 router.get("/tests/:testId", getTestById);
 router.get("/subjects/:subjectId/tests", getMyTestsBySubject);

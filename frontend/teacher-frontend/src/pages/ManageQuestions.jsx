@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import API from "../services/api";
 import "../assets/css/ManageQuestions.css";
 
 export default function ManageQuestions({ readOnly = false }) {
   const { testId } = useParams();
+  const navigate = useNavigate();
   const [testName, setTestName] = useState("");
   const [testProtectionReason, setTestProtectionReason] = useState("");
 
@@ -87,6 +88,13 @@ export default function ManageQuestions({ readOnly = false }) {
 
       <main className="main">
         <div className="manage-questions-page">
+          <button
+            className="manage-questions-back-link"
+            type="button"
+            onClick={() => navigate("/tests")}
+          >
+            ← My tests
+          </button>
           <div className="page-header">
             <div>
               <p className="page-eyebrow">{readOnly ? 'Assessment details' : 'Assessment builder'}</p>
@@ -191,7 +199,11 @@ export default function ManageQuestions({ readOnly = false }) {
               </div>
               <div className="question-builder-list">
                 {filteredQuestions.length === 0 ? (
-                  <p className="question-list-empty">{search ? 'No questions match your search.' : 'No questions match this filter.'}</p>
+                  <p className="question-list-empty">
+                    {search
+                      ? 'No questions match your search.'
+                      : 'No questions match this test’s subject, difficulty, and access settings. Check the question subject and sharing permissions.'}
+                  </p>
                 ) : filteredQuestions.map((q) => {
                   const added = isInTest(q._id);
                   return (

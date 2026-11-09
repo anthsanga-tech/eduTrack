@@ -13,6 +13,7 @@ import {
     closeTest,
     deleteQuestion,
     deleteTest,
+    getAccessibleQuestions,
     publishTest,
     updateQuestion,
     updateTest,
@@ -39,9 +40,12 @@ import {
     getTestLifecycleState,
     getTestPublicationValidationError,
     gradeAttemptAnswers,
+    getDifficultyQuery,
+    isQuestionDifficultyCompatible,
     isOwnedBy,
     isInUse,
     isManuallyLocked,
+    normalizeDifficulty,
     isProtected,
     isSystemProtected,
 } from "./resourceProtection.js";
@@ -494,7 +498,7 @@ test("starting a student attempt coordinates with question mutations", async (t)
         _id: testId,
         status: "published",
         startTime: new Date("2026-11-04T00:00:00Z"),
-        dueDate: new Date("2026-11-07T00:00:00Z"),
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         assignedStudents: ["student-1"],
         questions: [question],
         title: "Exam",
@@ -753,6 +757,54 @@ test("question update and deletion APIs do not reveal or modify another teacher'
     const deleteResponse = response();
     await deleteQuestion({ params: { questionId }, user: { _id: otherTeacherId } }, deleteResponse);
     assert.equal(deleteResponse.statusCode, 404);
+});
+
+test("question and test difficulty matching accepts case differences and mixed difficulty", () => {
+    assert.equal(normalizeDifficulty("Medium"), "medium");
+    assert.equal(getDifficultyQuery("Medium").test("MEDIUM"), true);
+    assert.equal(getDifficultyQuery("Medium").test(" Medium "), true);
+    assert.equal(getDifficultyQuery("medium").test("mEdIuM"), true);
+    assert.equal(getDifficultyQuery("Medium").test("hard"), false);
+    assert.equal(getDifficultyQuery("unknown"), null);
+    assert.equal(isQuestionDifficultyCompatible("Medium", "medium"), true);
+    assert.equal(isQuestionDifficultyCompatible("medium", "Medium"), true);
+    assert.equal(isQuestionDifficultyCompatible("mixed", "Medium"), true);
+    assert.equal(isQuestionDifficultyCompatible("Medium", "hard"), false);
+    assert.equal(isQuestionDifficultyCompatible("unknown", "unknown"), false);
+});
+
+test("accessible questions for a title-case medium test include medium questions", async (t) => {
+    let questionFilter;
+    t.mock.method(TestModel, "findOne", filter => ({
+        populate: async () => ({
+            _id: testId,
+            teacher: ownerId,
+            subject: { _id: "subject-1" },
+            difficulty: "Medium",
+        }),
+    }));
+    t.mock.method(Question, "find", filter => {
+        questionFilter = filter;
+        return {
+            populate: async () => [{
+                _id: questionId,
+                difficulty: "medium",
+            }],
+        };
+    });
+
+    const res = response();
+    await getAccessibleQuestions({ params: { testId }, user: { _id: ownerId } }, res);
+
+    assert.equal(questionFilter.difficulty.test("MEDIUM"), true);
+    assert.equal(questionFilter.difficulty.test("Medium "), true);
+    assert.equal(questionFilter.difficulty.test("hard"), false);
+    assert.equal(questionFilter.subject, "subject-1");
+    assert.deepEqual(questionFilter.$or, [
+        { createdBy: ownerId },
+        { allowedTeachers: ownerId },
+    ]);
+    assert.equal(res.body[0].difficulty, "medium");
 });
 
 test("resource ownership checks distinguish owners from other teachers", () => {

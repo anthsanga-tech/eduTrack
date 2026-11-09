@@ -18,6 +18,7 @@ eduTrack is a web-based assessment platform with separate applications for admin
 - Assign tests to students
 - Review student submissions and results
 - View dashboard analytics for assignments, submissions, completion, and average scores
+- Use Results & Reports to review completed attempts, pass rates, test performance, student progress, answer snapshots, and filtered CSV exports
 
 ### Students
 
@@ -62,7 +63,7 @@ Legacy records with status `draft` are treated as drafted by the backend and tes
 
 The test list shows lifecycle badges and record information, but does not provide **Publish**, **Close**, or any other lifecycle-status transition control. It provides View/Manage questions, Edit test, Delete, and drafted-test Lock/Unlock actions according to the test's backend capabilities. For a test that cannot be edited, its list-page **View** action opens a read-only question summary; an editable test's **Manage questions** action opens the question library and builder. The read-only view does not show search/filter, add, or remove controls.
 
-Publishing and closing remain backend lifecycle operations, not list-page actions. To publish or close, an authorized integration must call the lifecycle endpoints documented below; ordinary test editing cannot change the status directly. Tests are created as drafted.
+Publishing and closing remain backend lifecycle operations, not list-page actions. The Create Test status selector starts tests as Draft; Published and Closed are unavailable until their lifecycle prerequisites are met. In the Edit Test form, an eligible drafted test can be saved and published through the dedicated publish endpoint. Published tests remain immutable, but the edit route provides a status-only view that can close a published test when no attempt is active. Closed tests cannot be reopened. The forms never submit a direct status change through the ordinary create/edit endpoints; the backend lifecycle checks remain authoritative.
 
 ### Manual locking
 
@@ -244,6 +245,24 @@ The backend mounts these route groups:
 
 Protected API operations require an authorized user role; frontend route protection is not the only access check.
 
+### Teacher Results & Reports
+
+The reporting endpoints are mounted under `/api/teacher/reports` and require a valid JWT for a user with the `teacher` role. Every report is scoped to tests whose `teacher` field matches the authenticated user; a teacher ID supplied by a client is not accepted as an ownership filter.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/teacher/reports/overview` | Counts unique students and completed attempts; returns average score, pass rate, pass/fail distribution, per-test averages, highest/lowest tests, and recent submissions |
+| `GET /api/teacher/reports/test-results` | Returns paginated completed attempts with optional test, student name/email search, pass/fail, date range, sort field, and sort order filters |
+| `GET /api/teacher/reports/student-performance?studentId=<id>` | Returns a student's metrics, per-test summary, and paginated attempt history across only the authenticated teacher's tests |
+| `GET /api/teacher/reports/submissions/:submissionId` | Returns one completed submission and snapshot-based question/answer details, only when its test belongs to the authenticated teacher |
+| `GET /api/teacher/reports/export` | Streams CSV for the same supported result filters, without applying the on-screen page limit |
+
+`test-results` and `student-performance` accept `page` (default `1`) and `limit` (default `25`, maximum `100`). Result filters are `testId`, `search` (student name or email), `status` (`all`, `pass`, or `fail`), `from`, `to`, `sortBy` (`submittedAt` or `score`), and `sortOrder` (`asc` or `desc`). CSV export honors the filters but intentionally exports all matching rows rather than only the current page.
+
+Only completed submissions are included; in-progress attempts are excluded. Each submission is preserved as an attempt, including legitimate retakes. Attempt numbers are derived per student and test by submission timestamp, with submission `_id` as a stable tie-breaker. Average score is the mean percentage across scored completed attempts. Pass rate is passed scored attempts divided by all scored completed attempts; each attempt uses its saved total-mark and pass-percentage snapshot (falling back to the configured 50% pass threshold only when that snapshot omits it). A submission passes when its unrounded score percentage is greater than or equal to that threshold. Unique student counts use distinct student records, not attempt counts.
+
+Historical question text, choices, correct answers, marks, and test scoring values come from the submission's saved snapshots rather than the current test or question configuration. A completed record without usable scoring snapshots remains visible as unscored; no scoring or manual-grading rules are added by reporting.
+
 ## Useful commands
 
 Each frontend provides these scripts when run from its directory:
@@ -254,4 +273,4 @@ npm run build
 npm run lint
 ```
 
-The student frontend also defines `npm test`. The backend currently does not define a test or development script; start it with `node server.js`.
+Each frontend defines `npm test` where tests are present. The backend uses Node's test runner through `npm test`; start it with `node server.js`.

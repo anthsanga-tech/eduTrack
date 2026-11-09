@@ -50,5 +50,7 @@ const submissionSchema = new mongoose.Schema({
   submittedAt: { type: Date, default: null }
 });
 
+submissionSchema.index({ test: 1, student: 1, submittedAt: 1, _id: 1 });
+
 const Submission = mongoose.model("Submission", submissionSchema);
 export default Submission;

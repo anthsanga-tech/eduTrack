@@ -1,3 +1,18 @@
+.manage-questions-back-link {
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #52716a;
+  font-size: .84rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.manage-questions-back-link:hover {
+  color: var(--accent-dark);
+}
+
 .question-builder-panel {
   min-height: 300px;
 }

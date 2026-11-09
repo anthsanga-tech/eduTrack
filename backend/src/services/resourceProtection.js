@@ -7,6 +7,25 @@ export const isOwnedBy = (resource, ownerField, userId) =>
 
 export const normalizeTestStatus = (status) => status === "draft" ? "drafted" : status;
 
+export const normalizeDifficulty = (difficulty) =>
+    typeof difficulty === "string" ? difficulty.trim().toLowerCase() : "";
+
+export const getDifficultyQuery = (difficulty) => {
+    const normalized = normalizeDifficulty(difficulty);
+    if (!["easy", "medium", "hard"].includes(normalized)) return null;
+    return new RegExp(`^\\s*${normalized}\\s*$`, "i");
+};
+
+export const isQuestionDifficultyCompatible = (testDifficulty, questionDifficulty) => {
+    const testLevel = normalizeDifficulty(testDifficulty);
+    const questionLevel = normalizeDifficulty(questionDifficulty);
+    const allowedDifficulties = testLevel === "mixed"
+        ? ["easy", "medium", "hard"]
+        : [testLevel];
+    return ["easy", "medium", "hard"].includes(questionLevel) &&
+        allowedDifficulties.includes(questionLevel);
+};
+
 export const isDrafted = (test) => ["draft", "drafted"].includes(test?.status);
 
 export const isPublished = (test) => test?.status === "published";

@@ -21,6 +21,9 @@ import {
     getTestAttemptState,
     getTestProtectionReason,
     normalizeTestStatus,
+    normalizeDifficulty,
+    getDifficultyQuery,
+    isQuestionDifficultyCompatible,
     isOwnedBy,
 } from "../services/resourceProtection.js";
 
@@ -245,10 +248,7 @@ export const addQuestionToTest = async (req, res) => {
       if (protectionReason) {
         throw Object.assign(new Error(protectionReason), { statusCode: 409 });
       }
-      const allowedDifficulties = test.difficulty === "mixed"
-        ? ["easy", "medium", "hard"]
-        : [test.difficulty];
-      if (!allowedDifficulties.includes(question.difficulty)) {
+      if (!isQuestionDifficultyCompatible(test.difficulty, question.difficulty)) {
         throw Object.assign(new Error("Question difficulty does not match the test"), { statusCode: 400 });
       }
       // already added?
@@ -385,13 +385,15 @@ export const getAccessibleQuestions = async (req, res) => {
         if (!test) {
             return res.status(404).json({ message: "Test not found" });
         }
+        const difficultyValues = normalizeDifficulty(test.difficulty) === "mixed"
+            ? null
+            : getDifficultyQuery(test.difficulty);
         const questions = await Question.find({
             subject: test.subject._id,
-            ...(test.difficulty === "mixed" ? {} : { difficulty: test.difficulty }),
-            $or: [
-                { createdBy: req.user._id },
-                { allowedTeachers: req.user._id }
-            ]
+            ...(normalizeDifficulty(test.difficulty) === "mixed" || !difficultyValues
+                ? {}
+                : { difficulty: difficultyValues }),
+            $or: [{ createdBy: req.user._id }, { allowedTeachers: req.user._id }],
         }).populate("subject", "subjectName");
         res.json(questions);
     } catch (error) {
