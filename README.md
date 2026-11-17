@@ -154,6 +154,18 @@ The migration adds default unlocked/manual metadata and `isSystemProtected: fals
 
 The frontends use React Router and Axios. Each application has its own `package.json`; there are no root-level install or run scripts.
 
+### Responsive Design
+
+eduTrack supports small mobile (320–374px), standard mobile (375–430px), large mobile (431–767px), tablet (768–1023px), laptop (1024–1439px), and desktop (1440px and wider). Desktop navigation retains its sidebar; below 1024px, the sidebar becomes an accessible off-canvas drawer with a backdrop. The drawer closes with Escape, when its backdrop is selected, or after choosing a route, and prevents background scrolling while open.
+
+Data tables retain all columns and row actions and scroll horizontally inside their own containers when needed. Forms and report filters adapt to narrower columns, while modal dialogs constrain their height and allow their content to scroll. The student test view keeps its timer and submission controls available, wraps long question and answer text, and moves question navigation into a compact layout on smaller screens. Responsive rules are shared by all three frontends to keep navigation and layout behavior consistent.
+
+### Theme Support
+
+All three eduTrack applications support Light Mode and Dark Mode. Use the sun/moon control in the upper-right corner to switch themes without reloading. The selected theme is saved in `localStorage` and restored on the next visit; when there is no saved selection, the application follows the operating system color preference. Once selected manually, system preference changes do not override the choice.
+
+Each app owns one `ThemeProvider` in its `src/context/ThemeContext.tsx`; the shared persistence helpers are in `frontend/utils/themeStorage.js`, and common colors and dark-mode component rules are maintained in `frontend/utils/theme.css`. Each app's HTML applies the saved or system theme before the app loads to prevent a flash of the wrong theme. To theme a new component, prefer the existing `--color-*` tokens (or app tokens such as `--surface`, `--line`, and `--accent`) for backgrounds, text, borders, and controls; add a focused `[data-theme="dark"]` rule in the shared stylesheet only when a component needs a specific dark-mode treatment. Preserve semantic status colors and ensure keyboard focus remains visible.
+
 ## Requirements
 
 - Node.js and npm

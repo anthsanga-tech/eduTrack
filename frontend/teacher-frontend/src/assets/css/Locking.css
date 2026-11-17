@@ -519,3 +519,92 @@
     transition: none;
   }
 }
+
+html[data-theme="dark"] .locking-explainer-card {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+html[data-theme="dark"] .locking-explainer-card strong,
+html[data-theme="dark"] .locking-dialog-copy h2,
+html[data-theme="dark"] .locking-dialog-copy .locking-dialog-note {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .locking-explainer-card p,
+html[data-theme="dark"] .locking-question-index,
+html[data-theme="dark"] .locking-question-meta,
+html[data-theme="dark"] .locking-dialog-eyebrow,
+html[data-theme="dark"] .locking-dialog-copy > p:not(.locking-dialog-eyebrow) {
+  color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .locking-explainer-icon {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .locking-explainer-card.automatic .locking-explainer-icon {
+  border-color: #665536;
+  background: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .locking-count {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .locking-count strong,
+html[data-theme="dark"] .locking-question-text {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .locking-question-card {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--color-shadow);
+}
+
+html[data-theme="dark"] .locking-question-card:hover {
+  border-color: #526879;
+}
+
+html[data-theme="dark"] .locking-question-meta > span:not(.difficulty-badge) {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .locking-action-button {
+  border-color: var(--color-border);
+  background: #263654;
+  color: #c2d1ff;
+}
+
+html[data-theme="dark"] .locking-action-button.unlock {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .locking-question-actions {
+  border-top-color: var(--color-border);
+}
+
+html[data-theme="dark"] .locking-dialog {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+html[data-theme="dark"] .locking-dialog-icon {
+  background: #263654;
+  color: #c2d1ff;
+}
+
+html[data-theme="dark"] .locking-dialog-cancel {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}

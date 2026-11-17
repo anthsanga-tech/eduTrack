@@ -298,3 +298,64 @@
     grid-template-columns: 1fr;
   }
 }
+
+html[data-theme="dark"] .dashboard-section-heading h2,
+html[data-theme="dark"] .dashboard-error h3,
+html[data-theme="dark"] .dashboard-empty-state h3,
+html[data-theme="dark"] .dashboard-test-title {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .dashboard-stat-card p,
+html[data-theme="dark"] .dashboard-table tbody td,
+html[data-theme="dark"] .dashboard-score > span:first-child {
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .dashboard-stat-card > span,
+html[data-theme="dark"] .dashboard-test-date,
+html[data-theme="dark"] .dashboard-table thead th {
+  color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .dashboard-table-wrap {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+html[data-theme="dark"] .dashboard-table th,
+html[data-theme="dark"] .dashboard-table td {
+  border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .dashboard-table thead th {
+  background: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .dashboard-status {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .dashboard-status-published {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .dashboard-status-draft {
+  border-color: #665536;
+  background: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .dashboard-status-closed {
+  border-color: var(--color-border);
+  background: #293742;
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .dashboard-score-track {
+  background: #273542;
+}

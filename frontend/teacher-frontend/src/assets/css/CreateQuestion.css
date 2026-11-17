@@ -29,3 +29,12 @@
 .create-question-card .question-form button[type="submit"] {
   width: 100%;
 }
+
+html[data-theme="dark"] .question-back,
+html[data-theme="dark"] .question-editor-heading h1 {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .question-back:hover {
+  color: #c4eadf;
+}

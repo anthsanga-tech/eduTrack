@@ -8,6 +8,7 @@
   background: #f4f7fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --color-bg-primary: #f4f7fb;
   --accent: #3157c8;
   --accent-dark: #2446ac;
   --accent-soft: #edf2ff;
@@ -30,7 +31,7 @@ button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -53,7 +54,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .form.card h2 { margin: 0 0 26px; font-size: 1.65rem; letter-spacing: -0.03em; }
 .form.card label { display: block; margin: 18px 0 7px; color: #344155; font-size: .9rem; font-weight: 600; }
 .input { width: 100%; min-height: 46px; margin-top: 6px; padding: 11px 13px; border: 1px solid #d7deea; border-radius: 9px; background: #fff; color: #172033; transition: border-color .18s, box-shadow .18s; }
-.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
 .button, .create-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 42px; padding: 10px 16px; border: 0; border-radius: 9px;
@@ -130,7 +131,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .admin-data-toolbar h2, .admin-state-card h2, .admin-empty-state h2 { margin: 0; color: #202d43; font-size: 1rem; letter-spacing: -.015em; }
 .admin-data-toolbar p, .admin-state-card p, .admin-empty-state p { margin: 5px 0 0; color: var(--muted); font-size: .84rem; line-height: 1.5; }
 .admin-search { display: flex; align-items: center; gap: 8px; width: min(360px, 48%); min-height: 42px; padding: 0 11px; border: 1px solid #dfe5ef; border-radius: 9px; background: #fbfcfe; color: #8090a5; }
-.admin-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+.admin-search:focus-within { border-color: var(--accent); outline: 3px solid var(--color-focus); outline-offset: 2px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
 .admin-search > span:first-child { font-size: 1.25rem; line-height: 1; }
 .admin-search input { width: 100%; min-width: 0; border: 0; outline: none; background: transparent; color: #172033; font-size: .83rem; }
 .admin-search input::placeholder { color: #8491a5; }

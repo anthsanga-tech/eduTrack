@@ -8,12 +8,19 @@
   background: #f3f8fa;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --color-bg-primary: #f3f8fa;
   --accent: #087f8c;
   --accent-dark: #076b77;
   --accent-soft: #e7f7f8;
   --muted: #64748b;
   --line: #deeaed;
   --surface: #fff;
+  --student-stat-label-color: #60757c;
+  --student-stat-value-color: #19363f;
+  --student-stat-help-color: #84949a;
+  --student-stat-skeleton: #e5e7eb;
+  --student-progress-track: #e2edef;
+  --student-progress-text: #1f454b;
 }
 
 * { box-sizing: border-box; }
@@ -21,7 +28,7 @@ body { min-width: 320px; min-height: 100vh; margin: 0; background: #f3f8fa; colo
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 
 .app-shell { display: flex; min-height: 100vh; }
 .main { flex: 1; min-width: 0; width: 100%; max-width: 1500px; margin: 0 auto; padding: clamp(22px, 4vw, 42px); }
@@ -35,7 +42,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .form.card h2 { margin: 0 0 26px; font-size: 1.65rem; letter-spacing: -.03em; }
 .form.card label { display: block; margin: 18px 0 7px; color: #344155; font-size: .9rem; font-weight: 600; }
 .input { width: 100%; min-height: 46px; margin-top: 6px; padding: 11px 13px; border: 1px solid #d5e1e5; border-radius: 9px; background: #fff; color: #172033; transition: border-color .18s, box-shadow .18s; }
-.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 16px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 650; cursor: pointer; text-decoration: none; transition: background .18s, transform .18s, box-shadow .18s; }
 .button:hover { background: var(--accent-dark); box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent); transform: translateY(-1px); }
 .button:disabled, button:disabled { cursor: not-allowed; opacity: .58; transform: none; box-shadow: none; }
@@ -159,12 +166,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .student-dashboard-heading > div > p:last-child { margin: 8px 0 0; color: #657b82; line-height: 1.5; }
 .student-dashboard-eyebrow { margin: 0 0 7px; color: #087f8c; font-size: .72rem; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
 .student-dashboard-notice { margin-bottom: 16px; padding: 12px 15px; border: 1px solid #cde3e6; border-radius: 10px; background: #f2fafb; color: #47666c; font-size: .86rem; }
-.student-stat-grid > div { min-width: 0; border-color: #deeaed; border-radius: 15px; box-shadow: 0 5px 18px rgba(23,61,68,.045); transition: transform .18s, box-shadow .18s; }
+.student-stat-grid > div { min-width: 0; border-color: var(--line); border-radius: 15px; background: var(--surface); box-shadow: 0 5px 18px rgba(23,61,68,.045); transition: transform .18s, box-shadow .18s; }
 .student-stat-grid > div:hover { transform: translateY(-2px); box-shadow: 0 11px 24px rgba(23,61,68,.085); }
-.student-stat-grid > div > div > div:first-child > p:first-child { color: #60757c; font-size: .8rem; }
-.student-stat-grid > div > div > div:first-child > h3 { color: #19363f; font-size: 1.8rem; letter-spacing: -.035em; }
+.student-stat-grid > div > div > div:first-child > p:first-child { color: var(--student-stat-label-color); font-size: .8rem; }
+.student-stat-grid > div > div > div:first-child > h3 { color: var(--student-stat-value-color); font-size: 1.8rem; letter-spacing: -.035em; }
+.student-stat-skeleton { background: var(--student-stat-skeleton); }
 .student-stat-grid > div > div > div:last-child { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 13px; background: #e7f6f6; color: #087f8c; }
-.student-stat-grid > div > p:last-child { color: #84949a; }
+.student-stat-grid > div > p:last-child { color: var(--student-stat-help-color); }
 .student-stat-grid > div:nth-child(2) > div > div:last-child { background: #fff5e3; color: #a9751a; }
 .student-stat-grid > div:nth-child(3) > div > div:last-child, .student-stat-grid > div:nth-child(4) > div > div:last-child { background: #e8f6ee; color: #25805d; }
 .student-stat-grid > div:nth-child(5) > div > div:last-child { background: #fff0ee; color: #b54e44; }
@@ -312,7 +320,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .student-view-result-page > .student-result-detail-card { margin-top: 14px; }
 .student-result-summary { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 1.2fr); align-items: center; gap: 24px; padding: clamp(18px, 4vw, 34px); border: 1px solid #d4e9e8; border-radius: 15px; background: linear-gradient(115deg, #f2fafa, #fff); }
 .student-result-visual { display: flex; justify-content: center; }
-.student-progress-circle text { fill: #1f454b; }
+.student-progress-circle text { fill: var(--student-progress-text); }
 .student-result-summary-copy h1 { margin: 0 0 14px; color: #1d3b43; font-size: 1.55rem; letter-spacing: -.035em; }
 .student-result-summary-score { display: flex; align-items: center; justify-content: space-between; max-width: 300px; margin: 0; padding: 11px 0; border-bottom: 1px solid #e0ecec; color: #71838a; font-size: .84rem; }
 .student-result-summary-score strong { color: #26464d; font-size: 1rem; }
@@ -381,3 +389,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .password-reset-submit { width: 100%; margin-top: 22px; }
 .password-reset-secondary-link { display: inline-block; margin-top: 20px; font-size: .88rem; }
 .password-reset-error { margin: 0 0 15px; padding: 10px 12px; border: 1px solid #f0d3d0; border-radius: 9px; background: #fff7f6; color: #a43c35; font-size: .86rem; }
+
+html[data-theme="dark"] .student-dashboard-empty > span,
+html[data-theme="dark"] .tests-empty .tests-message-icon {
+  border: 1px solid #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .tests-error .tests-message-icon {
+  border: 1px solid #71413f;
+  background: #452b2d;
+  color: #ffc0bb;
+}

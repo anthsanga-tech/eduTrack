@@ -1,0 +1,666 @@
+:root {
+  --color-bg-secondary: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text-primary: #172033;
+  --color-text-secondary: #344155;
+  --color-text-muted: #64748b;
+  --color-border: #e5eaf2;
+  --color-input-bg: #ffffff;
+  --color-input-border: #d7deea;
+  --color-hover: #f6f8fb;
+  --color-shadow: 0 5px 20px rgba(20, 35, 55, .08);
+  --color-focus: var(--accent);
+  --color-focus-strong: var(--accent);
+  --color-disabled-bg: #f1f4f3;
+  --color-disabled-text: #93a09b;
+  --assessment-heading: #263d36;
+  --assessment-body: #788680;
+  --assessment-label: #3b5049;
+  --assessment-help: #64748b;
+  --assessment-secondary: #475569;
+  --assessment-input-text: #20332e;
+  --assessment-panel: #ffffff;
+  --assessment-panel-border: #d6e1dd;
+  --assessment-setting-bg: #f8fbf9;
+  --assessment-setting-border: #e1eae6;
+  --assessment-list-bg: #fbfdfc;
+  --assessment-list-border: #e0e9e5;
+  --assessment-student-text: #4c6159;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  color: var(--color-text-primary);
+  --color-bg-primary: #111b26;
+  --color-bg-secondary: #172330;
+  --color-surface: #1d2a37;
+  --color-text-primary: #e6edf5;
+  --color-text-secondary: #c0ccd8;
+  --color-text-muted: #a4b2c0;
+  --color-border: #354554;
+  --color-input-bg: #15212c;
+  --color-input-border: #63798a;
+  --color-hover: #263644;
+  --color-shadow: 0 8px 26px rgba(0, 0, 0, .22);
+  --color-focus: #8eaaff;
+  --color-focus-strong: #8eaaff;
+  --color-disabled-bg: #273441;
+  --color-disabled-text: #a4b2c0;
+  --assessment-heading: var(--color-text-primary);
+  --assessment-body: var(--color-text-muted);
+  --assessment-label: var(--color-text-secondary);
+  --assessment-help: var(--color-text-muted);
+  --assessment-secondary: var(--color-text-secondary);
+  --assessment-input-text: var(--color-text-primary);
+  --assessment-panel: var(--color-surface);
+  --assessment-panel-border: var(--color-border);
+  --assessment-setting-bg: var(--color-bg-secondary);
+  --assessment-setting-border: var(--color-border);
+  --assessment-list-bg: var(--color-bg-secondary);
+  --assessment-list-border: var(--color-border);
+  --assessment-student-text: var(--color-text-secondary);
+  --surface: var(--color-surface);
+  --line: var(--color-border);
+  --muted: var(--color-text-muted);
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, #1d2a37);
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.theme-toggle {
+  position: fixed;
+  z-index: 999;
+  top: 14px;
+  right: 16px;
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 11px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--color-shadow);
+  font-size: .82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--color-hover);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--color-focus-strong);
+  outline-offset: 3px;
+}
+
+html[data-theme="dark"] body {
+  background-color: var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .student-stat-grid {
+  --student-stat-label-color: var(--color-text-secondary);
+  --student-stat-value-color: var(--color-text-primary);
+  --student-stat-help-color: var(--color-text-muted);
+  --student-stat-skeleton: #273542;
+}
+
+html[data-theme="dark"] .student-progress-circle {
+  --student-progress-track: var(--color-border);
+  --student-progress-text: var(--color-text-primary);
+}
+
+html[data-theme="dark"] body * {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .sidebar {
+  background-color: #101923;
+  color: #e6edf5;
+}
+
+html[data-theme="dark"] .sidebar .brand-name,
+html[data-theme="dark"] .sidebar .sidebar-user-name,
+html[data-theme="dark"] .sidebar .side-link.active,
+html[data-theme="dark"] .sidebar .side-link:hover {
+  color: #f4f7fb;
+}
+
+html[data-theme="dark"] .sidebar .brand-role,
+html[data-theme="dark"] .sidebar .sidebar-user-label {
+  color: #a4b2c0;
+}
+
+html[data-theme="dark"] .sidebar .side-link {
+  color: #c0ccd8;
+}
+
+html[data-theme="dark"] .sidebar .sidebar-user,
+html[data-theme="dark"] .sidebar .button {
+  border-color: rgba(255, 255, 255, .13);
+  background-color: rgba(255, 255, 255, .06);
+  color: #e0e8f0;
+}
+
+html[data-theme="dark"] .side-link.active {
+  background-color: color-mix(in srgb, var(--accent) 38%, #172330);
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .admin-data-card,
+html[data-theme="dark"] .admin-count-card,
+html[data-theme="dark"] .admin-login-card,
+html[data-theme="dark"] .password-reset-card,
+html[data-theme="dark"] .admin-state-card,
+html[data-theme="dark"] .admin-empty-state,
+html[data-theme="dark"] .subject-list,
+html[data-theme="dark"] .quick-link-card,
+html[data-theme="dark"] .dashboard-stat-card,
+html[data-theme="dark"] .dashboard-error,
+html[data-theme="dark"] .dashboard-empty-state,
+html[data-theme="dark"] .dashboard-table-wrap,
+html[data-theme="dark"] .reports-card,
+html[data-theme="dark"] .reports-filter-card,
+html[data-theme="dark"] .reports-state,
+html[data-theme="dark"] .question-table-card,
+html[data-theme="dark"] .tests-list-card,
+html[data-theme="dark"] .question-loading-state,
+html[data-theme="dark"] .create-question-card,
+html[data-theme="dark"] .edit-question-card,
+html[data-theme="dark"] .assessment-details-panel,
+html[data-theme="dark"] .assessment-side-panel,
+html[data-theme="dark"] .student-stat-grid > div,
+html[data-theme="dark"] .question-library-toolbar,
+html[data-theme="dark"] .student-test-card,
+html[data-theme="dark"] .tests-message,
+html[data-theme="dark"] .test-card-skeleton,
+html[data-theme="dark"] .student-recent-card,
+html[data-theme="dark"] .student-results-state,
+html[data-theme="dark"] .student-result-card,
+html[data-theme="dark"] .student-submit-modal,
+html[data-theme="dark"] .student-results-modal,
+html[data-theme="dark"] .student-result-answer,
+html[data-theme="dark"] .student-result-summary,
+html[data-theme="dark"] .student-answer-option,
+html[data-theme="dark"] .student-nav-button.secondary,
+html[data-theme="dark"] .student-question-jump,
+html[data-theme="dark"] .locking-dialog,
+html[data-theme="dark"] .locking-modal,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .popover {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: var(--color-shadow);
+}
+
+html[data-theme="dark"] .admin-login-page,
+html[data-theme="dark"] .password-reset-page {
+  background: radial-gradient(ellipse at 12% 15%, #1c3041 0, transparent 37%), var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .welcome-panel {
+  background: linear-gradient(115deg, #173b3b, #176b5b);
+}
+
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .welcome-panel,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .welcome-panel *,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .admin-login-mark,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .brand-mark,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .button,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .create-button,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .student-nav-button.primary,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .student-submit-button,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .student-question-jump.current,
+html[data-theme="dark"][data-theme="dark"][data-theme="dark"] .question-submit-button {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .welcome-panel p,
+html[data-theme="dark"] .dashboard-eyebrow {
+  color: #d8f0ea;
+}
+
+html[data-theme="dark"] .student-test-topbar {
+  border-color: var(--color-border);
+  background: rgba(21, 33, 44, .96);
+}
+
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .admin-data-toolbar,
+html[data-theme="dark"] .admin-loading-list,
+html[data-theme="dark"] .question-table-caption,
+html[data-theme="dark"] .student-results-modal-heading,
+html[data-theme="dark"] .student-results-modal-footer {
+  border-color: var(--color-border);
+  background-color: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .dashboard-table td,
+html[data-theme="dark"] .dashboard-table th {
+  border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .table tbody tr:hover,
+html[data-theme="dark"] .admin-table tbody tr:hover,
+html[data-theme="dark"] .dashboard-table tbody tr:hover {
+  background-color: var(--color-hover);
+}
+
+html[data-theme="dark"] .admin-analytics-stat,
+html[data-theme="dark"] .admin-role-summary-card,
+html[data-theme="dark"] .analytics-oversight-list li,
+html[data-theme="dark"] .subject-cancel-button,
+html[data-theme="dark"] .admin-report-notice,
+html[data-theme="dark"] .student-dashboard-notice,
+html[data-theme="dark"] .tests-count,
+html[data-theme="dark"] .reports-student-heading,
+html[data-theme="dark"] .reports-secondary-button,
+html[data-theme="dark"] .reports-modal,
+html[data-theme="dark"] .reports-modal-close,
+html[data-theme="dark"] .submission-detail-grid > div,
+html[data-theme="dark"] .submission-question,
+html[data-theme="dark"] .locking-explainer-card,
+html[data-theme="dark"] .locking-count,
+html[data-theme="dark"] .resource-protection-card,
+html[data-theme="dark"] .locking-dialog-cancel,
+html[data-theme="dark"] .locking-action-button,
+html[data-theme="dark"] .builder-remove-button,
+html[data-theme="dark"] .builder-question-card.selected {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+}
+
+html[data-theme="dark"] .admin-role-summary-card.active,
+html[data-theme="dark"] .subject-title > span,
+html[data-theme="dark"] .student-stat-grid > div > div > div:last-child,
+html[data-theme="dark"] .tests-count-number,
+html[data-theme="dark"] .locking-explainer-icon,
+html[data-theme="dark"] .locking-dialog-icon,
+html[data-theme="dark"] .builder-option-preview strong,
+html[data-theme="dark"] .selected-question-badge {
+  background-color: color-mix(in srgb, var(--accent) 23%, var(--color-surface));
+}
+
+html[data-theme="dark"] .admin-report-notice,
+html[data-theme="dark"] .subject-unused-badge,
+html[data-theme="dark"] .locking-explainer-card.automatic .locking-explainer-icon,
+html[data-theme="dark"] .locking-dialog-icon.warning,
+html[data-theme="dark"] .locking-dialog-confirm.warning {
+  border-color: #665536;
+  background-color: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .locking-dialog-icon.danger,
+html[data-theme="dark"] .locking-dialog-confirm.danger,
+html[data-theme="dark"] .resource-lock-badge.is-locked,
+html[data-theme="dark"] .resource-protection-card.manual,
+html[data-theme="dark"] .builder-remove-button {
+  border-color: #71413f;
+  background-color: #452b2d;
+  color: #ffc0bb;
+}
+
+html[data-theme="dark"] .locking-dialog-icon.success,
+html[data-theme="dark"] .locking-dialog-confirm.success,
+html[data-theme="dark"] .resource-lock-badge,
+html[data-theme="dark"] .question-added-status {
+  border-color: #285643;
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .resource-lock-badge.is-protected {
+  border-color: #665536;
+  background-color: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .resource-protection-card:not(.manual) {
+  border-color: #665536;
+  background-color: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .resource-lock-badge.is-system {
+  border-color: #4a4771;
+  background-color: #302f4d;
+  color: #d3cbff;
+}
+
+html[data-theme="dark"] .student-test-details,
+html[data-theme="dark"] .student-question-meta,
+html[data-theme="dark"] .student-question-navigation,
+html[data-theme="dark"] .student-answer-summary > div,
+html[data-theme="dark"] .student-result-card-heading,
+html[data-theme="dark"] .student-result-card-footer,
+html[data-theme="dark"] .student-result-summary-score,
+html[data-theme="dark"] .student-palette-legend,
+html[data-theme="dark"] .reports-top-tests,
+html[data-theme="dark"] .reports-table th,
+html[data-theme="dark"] .reports-table td,
+html[data-theme="dark"] .analytics-oversight-list li,
+html[data-theme="dark"] .subject-item,
+html[data-theme="dark"] .admin-data-toolbar {
+  border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .score-chart-gridline {
+  stroke: var(--color-border);
+}
+
+html[data-theme="dark"] .score-chart-axis-label {
+  fill: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .score-chart-point {
+  fill: var(--color-surface);
+}
+
+html[data-theme="dark"] .analytics-chart-track,
+html[data-theme="dark"] .dashboard-score-track,
+html[data-theme="dark"] .distribution-track,
+html[data-theme="dark"] .test-score-track,
+html[data-theme="dark"] .admin-loading-list {
+  background-color: #273542;
+}
+
+html[data-theme="dark"] .admin-user-skeleton,
+html[data-theme="dark"] .skeleton-line,
+html[data-theme="dark"] .skeleton-rule {
+  background: linear-gradient(90deg, #273542 25%, #344451 45%, #273542 65%);
+}
+
+html[data-theme="dark"] .reports-table th,
+html[data-theme="dark"] .reports-table tbody tr:hover,
+html[data-theme="dark"] .question-bank-page .question-table tbody tr:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .result-badge.is-pass {
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .result-badge.is-fail,
+html[data-theme="dark"] .question-bank-page .error {
+  background-color: #452b2d;
+  color: #ffc0bb;
+}
+
+html[data-theme="dark"] .result-badge.is-unscored {
+  background-color: #293742;
+  color: #c0ccd8;
+}
+
+html[data-theme="dark"] .question-bank-page .success {
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .locking-action-button.unlock,
+html[data-theme="dark"] .locking-dialog-confirm {
+  border-color: #354554;
+  background-color: #263654;
+  color: #c2d1ff;
+}
+
+html[data-theme="dark"] .locking-dialog-copy .locking-dialog-note {
+  background-color: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .submission-question.correct {
+  border-left-color: #21836c;
+}
+
+html[data-theme="dark"] .submission-question.incorrect {
+  border-left-color: #c76161;
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .input,
+html[data-theme="dark"] .subject-form input,
+html[data-theme="dark"] .question-form input:not([type=radio]),
+html[data-theme="dark"] .question-form select,
+html[data-theme="dark"] .question-form textarea,
+html[data-theme="dark"] .question-form .form-group input {
+  border-color: var(--color-input-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #9eacba;
+  opacity: 1;
+}
+
+html[data-theme="dark"] input:disabled,
+html[data-theme="dark"] select:disabled,
+html[data-theme="dark"] textarea:disabled,
+html[data-theme="dark"] button:disabled {
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  opacity: 1;
+}
+
+html[data-theme="dark"] .assessment-page {
+  background: var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .assessment-page label {
+  color: var(--assessment-label);
+}
+
+html[data-theme="dark"] .assessment-page .assessment-help-text {
+  color: var(--assessment-help);
+}
+
+html[data-theme="dark"] .assessment-page .assessment-secondary-text {
+  color: var(--assessment-secondary);
+}
+
+html[data-theme="dark"] .assessment-panel-heading p,
+html[data-theme="dark"] .assessment-page-header > div:last-child > p:last-child {
+  color: var(--assessment-body);
+}
+
+html[data-theme="dark"] .assessment-retake-settings,
+html[data-theme="dark"] .assessment-page .students-list {
+  border-color: var(--assessment-setting-border);
+  background-color: var(--assessment-setting-bg);
+}
+
+html[data-theme="dark"] .assessment-page .subject-card.active {
+  border-color: #285643;
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .assessment-page .subject-card:hover,
+html[data-theme="dark"] .assessment-page .student-item:hover {
+  background-color: var(--color-hover);
+}
+
+html[data-theme="dark"] .assessment-page .student-item.selected {
+  border-color: #285643;
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .student-stat-grid .animate-pulse {
+  background-color: #273542;
+}
+
+html[data-theme="dark"] .student-test-date,
+html[data-theme="dark"] .student-answer-option.selected,
+html[data-theme="dark"] .student-question-jump,
+html[data-theme="dark"] .question-option-input,
+html[data-theme="dark"] .question-option-input.is-correct,
+html[data-theme="dark"] .question-teacher-access,
+html[data-theme="dark"] .teacher-item.selected,
+html[data-theme="dark"] .correct-options label.selected,
+html[data-theme="dark"] .student-modal-close,
+html[data-theme="dark"] .admin-search,
+html[data-theme="dark"] .student-dashboard-empty,
+html[data-theme="dark"] .student-result-details-button,
+html[data-theme="dark"] .student-nav-button.secondary,
+html[data-theme="dark"] .student-test-action-secondary,
+html[data-theme="dark"] .admin-user-cancel,
+html[data-theme="dark"] .btn-secondary,
+html[data-theme="dark"] .btn-edit,
+html[data-theme="dark"] .btn-delete,
+html[data-theme="dark"] .question-retry,
+html[data-theme="dark"] .tests-count {
+  border-color: var(--color-border);
+  background-color: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .student-answer-option:hover,
+html[data-theme="dark"] .student-nav-button.secondary:hover,
+html[data-theme="dark"] .student-test-action-secondary:hover,
+html[data-theme="dark"] .quick-link-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--color-border));
+  background-color: var(--color-hover);
+}
+
+html[data-theme="dark"] .tests-intro,
+html[data-theme="dark"] .student-results-heading,
+html[data-theme="dark"] .student-result-summary {
+  border-color: var(--color-border);
+  background: linear-gradient(115deg, #1a3039, #1d2a37);
+}
+
+html[data-theme="dark"] .admin-error-card,
+html[data-theme="dark"] .dashboard-error,
+html[data-theme="dark"] .tests-error,
+html[data-theme="dark"] .student-results-state.error,
+html[data-theme="dark"] .student-result-answer.incorrect,
+html[data-theme="dark"] .student-timer.warning,
+html[data-theme="dark"] .admin-login-error,
+html[data-theme="dark"] .password-reset-error {
+  border-color: #71413f;
+  background-color: #382727;
+}
+
+html[data-theme="dark"] .badge.success,
+html[data-theme="dark"] .badge-green,
+html[data-theme="dark"] .test-status-active,
+html[data-theme="dark"] .test-status-published,
+html[data-theme="dark"] .difficulty-easy,
+html[data-theme="dark"] .btn-test-manage,
+html[data-theme="dark"] .btn-question-edit,
+html[data-theme="dark"] .student-answer-option.selected,
+html[data-theme="dark"] .student-question-jump.answered,
+html[data-theme="dark"] .student-result-outcome.passed,
+html[data-theme="dark"] .question-option-input.is-correct,
+html[data-theme="dark"] .correct-options label.selected,
+html[data-theme="dark"] .teacher-item.selected,
+html[data-theme="dark"] .admin-role-teacher {
+  background-color: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .badge.danger,
+html[data-theme="dark"] .test-status-closed,
+html[data-theme="dark"] .difficulty-hard,
+html[data-theme="dark"] .admin-user-delete,
+html[data-theme="dark"] .btn-delete,
+html[data-theme="dark"] .btn-test-delete,
+html[data-theme="dark"] .btn-question-delete,
+html[data-theme="dark"] .student-result-outcome.failed,
+html[data-theme="dark"] .resource-lock-badge.is-locked {
+  background-color: #452b2d;
+  color: #ffc0bb;
+}
+
+html[data-theme="dark"] .test-status-upcoming,
+html[data-theme="dark"] .test-status-draft,
+html[data-theme="dark"] .difficulty-medium,
+html[data-theme="dark"] .admin-role-student,
+html[data-theme="dark"] .btn-test-edit {
+  background-color: #403624;
+  color: #f4d28f;
+}
+
+html[data-theme="dark"] .admin-role-admin,
+html[data-theme="dark"] .btn-test-lock,
+html[data-theme="dark"] .btn-question-lock,
+html[data-theme="dark"] .admin-user-edit,
+html[data-theme="dark"] .btn-test-archive,
+html[data-theme="dark"] .btn-edit {
+  background-color: #263654;
+  color: #c2d1ff;
+}
+
+html[data-theme="dark"] .student-test-action-disabled {
+  border-color: var(--color-border);
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+}
+
+html[data-theme="dark"] .resource-lock-badge,
+html[data-theme="dark"] .admin-role-badge:not(.admin-role-admin):not(.admin-role-teacher):not(.admin-role-student) {
+  background-color: #293742;
+  color: #c0ccd8;
+}
+
+html[data-theme="dark"] ::selection {
+  background: color-mix(in srgb, var(--accent) 42%, #14202a);
+}
+
+@media (max-width: 1023px) {
+  .theme-toggle {
+    top: 13px;
+    right: 14px;
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 520px) {
+  .theme-toggle {
+    min-width: 42px;
+    width: 42px;
+    padding: 8px;
+  }
+
+  .theme-toggle span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .theme-toggle {
+    transition: none;
+  }
+}

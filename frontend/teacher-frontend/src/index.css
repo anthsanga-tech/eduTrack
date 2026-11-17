@@ -8,6 +8,7 @@
   background: #f4f7f6;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --color-bg-primary: #f4f7f6;
   --accent: #16836f;
   --accent-dark: #106c5b;
   --accent-soft: #e9f7f3;
@@ -21,7 +22,7 @@ body { min-width: 320px; min-height: 100vh; margin: 0; background: #f4f7f6; colo
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 
 .app-layout { display: flex; min-height: 100vh; }
 .main-content { flex: 1; min-width: 0; }
@@ -36,7 +37,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .form.card h2 { margin: 0 0 26px; font-size: 1.65rem; letter-spacing: -.03em; }
 .form.card label { display: block; margin: 18px 0 7px; color: #344155; font-size: .9rem; font-weight: 600; }
 .input { width: 100%; min-height: 46px; margin-top: 6px; padding: 11px 13px; border: 1px solid #d7e1dd; border-radius: 9px; background: #fff; color: #172033; transition: border-color .18s, box-shadow .18s; }
-.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
 .button, .create-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 16px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 650; cursor: pointer; text-decoration: none; transition: background .18s, transform .18s, box-shadow .18s; }
 .button:hover, .create-button:hover { background: var(--accent-dark); box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent); transform: translateY(-1px); }
 .button:disabled, button:disabled { cursor: not-allowed; opacity: .58; transform: none; box-shadow: none; }
@@ -185,7 +186,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   min-height: 43px; padding: 10px 12px; border: 1px solid #d5e1dd; border-radius: 9px; background: #fff; color: #20332e;
 }
 .question-form textarea { min-height: 112px; resize: vertical; }
-.question-form input:focus, .question-form select:focus, .question-form textarea:focus { border-color: var(--accent); outline: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
+.question-form input:focus, .question-form select:focus, .question-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
 .question-primary-fields { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 14px; }
 .question-field, .form-group { display: flex; flex-direction: column; gap: 7px; }
 .question-mark-field input { width: 100%; }
@@ -232,32 +233,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .assessment-page { max-width: 1120px; margin: 0 auto; padding: 30px 0 48px; background: transparent; }
 .assessment-page-header { position: relative; margin-bottom: 24px; padding-top: 30px; }
-.assessment-page-header h1 { margin: 0; color: #1d332d; font-size: clamp(1.65rem, 3vw, 2.2rem); letter-spacing: -.04em; }
-.assessment-page-header > div:last-child > p:last-child { margin: 7px 0 0; color: #70807b; line-height: 1.5; }
+.assessment-page-header h1 { margin: 0; color: var(--assessment-heading); font-size: clamp(1.65rem, 3vw, 2.2rem); letter-spacing: -.04em; }
+.assessment-page-header > div:last-child > p:last-child { margin: 7px 0 0; color: var(--assessment-body); line-height: 1.5; }
 .assessment-back-link { position: absolute; top: 0; left: 0; padding: 0; border: 0; background: transparent; color: #52716a; font-size: .84rem; font-weight: 650; cursor: pointer; }
 .assessment-back-link:hover { color: var(--accent-dark); }
-.assessment-page .assessment-details-panel, .assessment-page .assessment-side-panel { border-color: var(--line); border-radius: 14px; background: #fff; box-shadow: 0 5px 20px rgba(26,55,48,.04); }
+.assessment-page .assessment-details-panel, .assessment-page .assessment-side-panel { border-color: var(--assessment-panel-border); border-radius: 14px; background: var(--assessment-panel); box-shadow: 0 5px 20px rgba(26,55,48,.04); }
 .assessment-panel-heading { margin-bottom: 19px; }
-.assessment-panel-heading h2 { margin: 0; color: #263d36; font-size: 1rem; font-weight: 700; }
-.assessment-panel-heading p { margin: 5px 0 0; color: #788680; font-size: .8rem; line-height: 1.45; }
-.assessment-page label { color: #3b5049; }
-.assessment-page input:not([type=checkbox]), .assessment-page textarea, .assessment-page select { min-height: 42px; border-color: #d6e1dd; border-radius: 9px; background-color: #fff; color: #20332e; }
+.assessment-panel-heading h2 { margin: 0; color: var(--assessment-heading); font-size: 1rem; font-weight: 700; }
+.assessment-panel-heading p { margin: 5px 0 0; color: var(--assessment-body); font-size: .8rem; line-height: 1.45; }
+.assessment-page label { color: var(--assessment-label); }
+.assessment-page input:not([type=checkbox]), .assessment-page textarea, .assessment-page select { min-height: 42px; border-color: var(--assessment-panel-border); border-radius: 9px; background-color: var(--assessment-panel); color: var(--assessment-input-text); }
 .assessment-page textarea { min-height: 96px; resize: vertical; }
-.assessment-page input:focus, .assessment-page textarea:focus, .assessment-page select:focus { border-color: var(--accent); outline: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
+.assessment-page input:focus, .assessment-page textarea:focus, .assessment-page select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
 .assessment-side-column { align-self: start; }
 .assessment-side-panel { padding: 19px !important; }
-.assessment-side-panel .subject-card { padding: 8px 11px; border-color: #dce6e2; border-radius: 9px; color: #52655f; font: inherit; cursor: pointer; }
+.assessment-side-panel .subject-card { padding: 8px 11px; border-color: var(--assessment-list-border); border-radius: 9px; color: var(--assessment-student-text); font: inherit; cursor: pointer; }
 .assessment-side-panel .subject-card:hover { border-color: #a9d2c0; background: #f4faf7; }
 .assessment-side-panel .subject-card.active { border-color: #9ccdb9; background: #e8f6ef; color: #176b59; font-weight: 700; }
-.assessment-retake-settings { gap: 14px; border-color: #e1eae6; border-radius: 11px; background: #f8fbf9; }
+.assessment-retake-settings { gap: 14px; border-color: var(--assessment-setting-border); border-radius: 11px; background: var(--assessment-setting-bg); }
 .assessment-retake-settings > label { margin: 0; }
 .assessment-retake-settings input[type=checkbox] { accent-color: var(--accent); }
 .assessment-retake-settings input[type=number] { width: 72px; min-height: 36px; }
-.assessment-page .students-list { display: grid; gap: 4px; max-height: 240px; margin-top: 1px; padding: 5px; border-color: #e0e9e5; border-radius: 10px; background: #fbfdfc; }
-.assessment-page .student-item { display: flex; width: 100%; align-items: center; justify-content: flex-start; padding: 9px 10px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #4c6159; text-align: left; cursor: pointer; }
+.assessment-page .students-list { display: grid; gap: 4px; max-height: 240px; margin-top: 1px; padding: 5px; border-color: var(--assessment-list-border); border-radius: 10px; background: var(--assessment-list-bg); }
+.assessment-page .student-item { display: flex; width: 100%; align-items: center; justify-content: flex-start; padding: 9px 10px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--assessment-student-text); text-align: left; cursor: pointer; }
 .assessment-page .student-item:hover { background: #f0f7f4; }
 .assessment-page .student-item.selected { border-color: #d2e9dc; background: #e8f6ee; color: #176b59; font-weight: 650; }
-.assessment-page .subject-card:focus-visible, .assessment-page .student-item:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+.assessment-page .subject-card:focus-visible, .assessment-page .student-item:focus-visible { outline: 3px solid var(--color-focus-strong); outline-offset: 2px; }
 .assessment-page .assessment-side-column > button { min-height: 46px; border-radius: 10px; background: var(--accent); font-weight: 700; }
 .assessment-page .assessment-side-column > button:hover { background: var(--accent-dark); }
 .assessment-page .assessment-side-column > button:disabled { opacity: .7; }
@@ -362,3 +363,136 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .password-reset-submit { width: 100%; margin-top: 22px; }
 .password-reset-secondary-link { display: inline-block; margin-top: 20px; font-size: .88rem; }
 .password-reset-error { margin: 0 0 15px; padding: 10px 12px; border: 1px solid #f2d8d8; border-radius: 9px; background: #fff5f5; color: #a3212b; font-size: .86rem; }
+
+html[data-theme="dark"] .question-editor-heading h1,
+html[data-theme="dark"] .question-teacher-access h2,
+html[data-theme="dark"] .question-teacher-heading label,
+html[data-theme="dark"] .question-list-empty strong,
+html[data-theme="dark"] .question-builder-heading h2,
+html[data-theme="dark"] .builder-question-text,
+html[data-theme="dark"] .selected-question-count strong,
+html[data-theme="dark"] .page-header h1,
+html[data-theme="dark"] .header h1,
+html[data-theme="dark"] .header h2,
+html[data-theme="dark"] .question-table-caption h2,
+html[data-theme="dark"] .question-empty-state h2,
+html[data-theme="dark"] .test-title,
+html[data-theme="dark"] .tests-list-card .test-meta strong {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .question-editor-heading > p:last-child,
+html[data-theme="dark"] .question-form label,
+html[data-theme="dark"] .question-form legend,
+html[data-theme="dark"] .question-field-hint,
+html[data-theme="dark"] .question-teacher-access p,
+html[data-theme="dark"] .question-teacher-heading p,
+html[data-theme="dark"] .question-teacher-access h2 span,
+html[data-theme="dark"] .question-teacher-heading label span,
+html[data-theme="dark"] .question-list-empty,
+html[data-theme="dark"] .question-builder-heading p,
+html[data-theme="dark"] .builder-question-meta,
+html[data-theme="dark"] .builder-option-preview,
+html[data-theme="dark"] .question-filter,
+html[data-theme="dark"] .question-search,
+html[data-theme="dark"] .selected-question-count,
+html[data-theme="dark"] .page-description,
+html[data-theme="dark"] .question-table-caption p,
+html[data-theme="dark"] .question-empty-state p,
+html[data-theme="dark"] .tests-list-card .test-date,
+html[data-theme="dark"] .tests-list-card .test-meta,
+html[data-theme="dark"] .resource-action-unavailable,
+html[data-theme="dark"] .resource-lock-meta {
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .page-eyebrow {
+  color: #69c8ae;
+}
+
+html[data-theme="dark"] .question-option-input,
+html[data-theme="dark"] .question-option-input.is-correct,
+html[data-theme="dark"] .correct-options label,
+html[data-theme="dark"] .question-teacher-access,
+html[data-theme="dark"] .teacher-item,
+html[data-theme="dark"] .edit-question-card .option-box,
+html[data-theme="dark"] .edit-question-card .option-box.correct,
+html[data-theme="dark"] .question-library-toolbar,
+html[data-theme="dark"] .question-builder-panel,
+html[data-theme="dark"] .builder-question-card,
+html[data-theme="dark"] .builder-question-card.selected,
+html[data-theme="dark"] .selected-question-count {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .correct-options label,
+html[data-theme="dark"] .teacher-item {
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .question-option-input.is-correct,
+html[data-theme="dark"] .correct-options label.selected,
+html[data-theme="dark"] .teacher-item.selected,
+html[data-theme="dark"] .edit-question-card .option-box.correct,
+html[data-theme="dark"] .builder-question-card.selected {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .question-option-letter,
+html[data-theme="dark"] .question-option-input.is-correct .question-option-letter,
+html[data-theme="dark"] .builder-option-preview strong,
+html[data-theme="dark"] .selected-question-count strong,
+html[data-theme="dark"] .selected-question-badge {
+  border-color: var(--color-border);
+  background: #293742;
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .question-option-input.is-correct .question-option-letter,
+html[data-theme="dark"] .selected-question-badge {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .correct-options label.selected,
+html[data-theme="dark"] .teacher-item.selected {
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .teacher-item:hover,
+html[data-theme="dark"] .question-filter:hover {
+  border-color: var(--color-border);
+  background: var(--color-hover);
+}
+
+html[data-theme="dark"] .question-filter.active {
+  border-color: #285643;
+  background: #173c32;
+  color: #a7e6c6;
+}
+
+html[data-theme="dark"] .question-builder-heading,
+html[data-theme="dark"] .edit-question-card .form-actions,
+html[data-theme="dark"] .question-editor-heading {
+  border-color: var(--color-border);
+}
+
+html[data-theme="dark"] .builder-remove-button {
+  border-color: #71413f;
+  background: #452b2d;
+  color: #ffc0bb;
+}
+
+html[data-theme="dark"] .test-question-count-empty {
+  background: #293742;
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .test-question-count {
+  background: #173c32;
+  color: #a7e6c6;
+}

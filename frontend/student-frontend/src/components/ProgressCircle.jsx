@@ -14,7 +14,7 @@ export default function ProgressCircle({ size=120, percent=0 }){
         </linearGradient>
       </defs>
       <g transform={`translate(${size/2},${size/2})`}>
-        <circle r={r} stroke="#e2edef" strokeWidth="8" fill="none" />
+        <circle r={r} stroke="var(--student-progress-track)" strokeWidth="8" fill="none" />
         <circle r={r} stroke="url(#student-progress-gradient)" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} transform="rotate(-90)" />
         <text x="0" y="6" textAnchor="middle" fontSize="20" fontWeight="600">{percent}%</text>
       </g>

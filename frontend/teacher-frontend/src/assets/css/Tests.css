@@ -46,7 +46,7 @@
 
 .tests-list-card .btn-test:focus-visible,
 .tests-page .button:focus-visible {
-  outline: 3px solid rgba(22, 131, 111, 0.3);
+  outline: 3px solid var(--color-focus-strong);
   outline-offset: 2px;
 }
 

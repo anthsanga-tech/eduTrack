@@ -76,16 +76,16 @@ export default function Dashboard() {
         <div className="student-stat-grid grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6" aria-busy={loading}>
 
           {/* Assigned Tests */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Assigned Tests
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-12 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-12 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.assigned}
                   </h3>
                 )}
@@ -94,22 +94,22 @@ export default function Dashboard() {
                 📚
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Total assigned
             </p>
           </div>
 
           {/* Pending */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Pending
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-12 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-12 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.pending}
                   </h3>
                 )}
@@ -118,22 +118,22 @@ export default function Dashboard() {
                 ⏳
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Waiting to complete
             </p>
           </div>
 
           {/* Completed */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Completed
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-12 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-12 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.completed}
                   </h3>
                 )}
@@ -142,22 +142,22 @@ export default function Dashboard() {
                 ✓
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Tests completed
             </p>
           </div>
 
           {/* Passed */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Passed
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-12 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-12 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.passed}
                   </h3>
                 )}
@@ -166,22 +166,22 @@ export default function Dashboard() {
                 🏆
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Successful tests
             </p>
           </div>
 
           {/* Failed */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Failed
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-12 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-12 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.failed}
                   </h3>
                 )}
@@ -191,22 +191,22 @@ export default function Dashboard() {
                 !
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Needs improvement
             </p>
           </div>
 
           {/* Average Score */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Average Score
                 </p>
                 {loading ? (
-                  <div className="mt-2 h-8 w-16 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-16 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {stats.averageScore}%
                   </h3>
                 )}
@@ -215,23 +215,23 @@ export default function Dashboard() {
                 ⭐
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Overall performance
             </p>
           </div>
 
           {/* Total Time */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="student-stat-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium student-stat-label">
                   Total Time
                 </p>
 
                 {loading ? (
-                  <div className="mt-2 h-8 w-20 bg-gray-200 rounded animate-pulse" />
+                  <div className="mt-2 h-8 w-20 student-stat-skeleton rounded animate-pulse" />
                 ) : (
-                  <h3 className="mt-2 text-3xl font-bold text-gray-800">
+                  <h3 className="mt-2 text-3xl font-bold student-stat-value">
                     {formatTime(stats.totalTimeInSeconds)}
                   </h3>
                 )}
@@ -242,7 +242,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="mt-3 text-xs student-stat-help">
               Time spent testing
             </p>
           </div>

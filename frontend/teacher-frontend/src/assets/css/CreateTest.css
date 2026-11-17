@@ -23,7 +23,15 @@
   width: 100%;
 }
 
+.assessment-page .assessment-help-text {
+  color: var(--assessment-help);
+}
+
+.assessment-page .assessment-secondary-text {
+  color: var(--assessment-secondary);
+}
+
 .assessment-page .assessment-retake-settings input:disabled {
-  background: #f1f4f3;
-  color: #93a09b;
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
 }

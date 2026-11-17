@@ -27,3 +27,13 @@
 .edit-question-card .options-grid {
   border: 0;
 }
+
+html[data-theme="dark"] .edit-question-card .option-box {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .edit-question-card .option-box.correct {
+  border-color: #285643;
+  background: #173c32;
+}
