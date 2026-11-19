@@ -276,6 +276,10 @@ The backend uses Jest for business-rule and API tests, Supertest for HTTP reques
 
 The three frontends use Vitest, jsdom, and React Testing Library. Each application has a separate test environment and package installation.
 
+### Continuous integration
+
+GitHub Actions runs the backend test suite and, independently, the test, lint, and production build checks for each frontend. The workflow runs on pushes to `main`, pull requests targeting `main`, and manual dispatch. Frontend builds use a non-secret placeholder API URL. View run logs in the repository's **Actions** tab; pull request checks also appear on the pull request.
+
 Install dependencies from each project directory if they are not already installed:
 
 ```bash
