@@ -23,6 +23,6 @@ const closeExpiredTests = async () => {
   }
 };
 
-cron.schedule("* * * * *", closeExpiredTests);
+export const scheduleExpiredTestCleanup = () => cron.schedule("* * * * *", closeExpiredTests);
 
 export default closeExpiredTests;

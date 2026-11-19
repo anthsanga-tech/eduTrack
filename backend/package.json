@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "npm run test:jest && npm run test:legacy",
     "test:jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --coverage",

@@ -169,7 +169,7 @@ Each app owns one `ThemeProvider` in its `src/context/ThemeContext.tsx`; the sha
 ## Requirements
 
 - Node.js and npm
-- Access to the MongoDB Atlas cluster configured by the backend, or an update to the connection configuration for another MongoDB deployment
+- Access to the existing MongoDB Atlas cluster and database
 
 ## Local development
 
@@ -178,21 +178,19 @@ Each app owns one `ThemeProvider` in its `src/context/ThemeContext.tsx`; the sha
 Create `backend/.env` with the MongoDB credentials and JWT secret:
 
 ```env
-PORT=5000
-MONGO_USER=your_mongodb_username
-MONGO_PASS=your_mongodb_password
-MONGO_DB=your_database_name
-JWT_SECRET=replace_with_a_long_random_secret
 NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb+srv://your_user:your_password@your_existing_atlas_cluster/your_existing_database?retryWrites=true&w=majority&authSource=admin
+JWT_SECRET=replace_with_a_long_random_secret
 PASSWORD_RESET_EMAIL_MODE=console
 ADMIN_FRONTEND_URL=http://localhost:5173
 TEACHER_FRONTEND_URL=http://localhost:5174
 STUDENT_FRONTEND_URL=http://localhost:5175
 ```
 
-The backend reads `MONGO_USER`, `MONGO_PASS`, and `MONGO_DB` to build its MongoDB connection string in `backend/src/config/db.js`. The current cluster host and connection options are defined there.
+Use the existing Atlas cluster and database in `MONGODB_URI`; this configuration does not create or select a replacement database. For backward compatibility, the backend also accepts `MONGO_USER`, `MONGO_PASS`, and `MONGO_DB`, using its previous Atlas hostname when `MONGO_CLUSTER` is not set. Setting `MONGO_CLUSTER` explicitly continues to use an Atlas SRV URI. Do not put credentials in source control. The backend fails at startup if database, JWT, frontend-origin, or production email configuration is incomplete.
 
-Console mode prints password-reset links in the backend terminal and is only accepted when `NODE_ENV=development`. To send real email instead, use `PASSWORD_RESET_EMAIL_MODE=resend` and configure `RESEND_API_KEY` and `PASSWORD_RESET_FROM` with a verified sender. Configure the three frontend URL variables for the URLs where each app is served. Never use console mode in production because reset links are written to logs.
+Console mode prints password-reset links in the backend terminal and is only accepted when `NODE_ENV=development`. To send real email instead, use `PASSWORD_RESET_EMAIL_MODE=resend` and configure `RESEND_API_KEY` and `PASSWORD_RESET_FROM` with a verified sender. The three frontend URL variables are also the CORS allowlist and must be the exact deployed frontend origins in production.
 
 ### 2. Install dependencies
 
@@ -242,7 +240,35 @@ cd frontend/student-frontend
 npm run dev -- --port 5175
 ```
 
-Each frontend uses `http://localhost:5000/api` by default. To use a different API URL, set `VITE_API_URL` in that frontend's environment.
+Each frontend uses `http://localhost:5000/api` by default. Copy its `.env.example` to `.env` for local work, or set `VITE_API_URL` in that Vercel project to the deployed Render API URL ending in `/api`. Production builds fail unless this is an HTTPS URL. Vite variables are public build-time values; never put backend secrets in a frontend environment variable.
+
+## Production deployment configuration
+
+Deployment is not performed by this repository setup. Configure the existing Atlas database, one Render backend service, and three separate Vercel projects:
+
+### Render backend service
+
+- Set the service root directory to `backend`.
+- Install with `npm install`; start with `npm start`.
+- Set `NODE_ENV=production` and `MONGODB_URI` to the connection URI for the **existing** Atlas cluster and database.
+- Set a strong `JWT_SECRET`.
+- Set `ADMIN_FRONTEND_URL`, `TEACHER_FRONTEND_URL`, and `STUDENT_FRONTEND_URL` to the three exact HTTPS Vercel origins (no path or trailing slash is needed).
+- Set `PASSWORD_RESET_EMAIL_MODE=resend`, `RESEND_API_KEY`, and `PASSWORD_RESET_FROM` to a verified Resend sender. Production startup rejects console mode or missing mail configuration.
+- Let Render provide `PORT`; the server binds to that assigned port after MongoDB connects.
+
+The CORS allowlist includes the three configured frontend origins. Localhost origins are added outside production; unconfigured preview domains are not implicitly trusted.
+
+### Vercel frontend projects
+
+Create one project per frontend, using its directory as the project root:
+
+- `frontend/admin-frontend`
+- `frontend/teacher-frontend`
+- `frontend/student-frontend`
+
+For each project, set `VITE_API_URL` to `https://<render-service>.onrender.com/api` (replace with the actual Render service URL) and provide it for every Vercel environment that builds the app. Use each production project’s HTTPS origin for its corresponding Render `*_FRONTEND_URL`. The existing Axios services already use `VITE_API_URL` and retain the localhost fallback for development.
+
+Example variable files are provided at `backend/.env.example` and in each frontend directory. Copy them to local `.env` files as appropriate; real `.env` files remain git-ignored.
 
 ## Automated testing
 

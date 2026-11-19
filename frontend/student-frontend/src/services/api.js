@@ -1,6 +1,17 @@
 import axios from 'axios'
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' })
+const apiBaseUrl = import.meta.env.VITE_API_URL?.trim() || (
+  import.meta.env.DEV ? 'http://localhost:5000/api' : ''
+)
+
+if (!apiBaseUrl) {
+  throw new Error('VITE_API_URL must be configured for production')
+}
+if (import.meta.env.PROD && !apiBaseUrl.startsWith('https://')) {
+  throw new Error('VITE_API_URL must use HTTPS in production')
+}
+
+const API = axios.create({ baseURL: apiBaseUrl })
 
 // attach token automatically if present
 API.interceptors.request.use(config => {
