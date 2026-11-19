@@ -22,6 +22,10 @@ export const createApp = (env = process.env) => {
     app.use(cors(createCorsOptions(env)));
     app.use(express.json());
 
+    app.get("/health", (req, res) => {
+        res.status(200).json({ status: "ok" });
+    });
+
     app.use("/api/auth", authRoutes);
     app.use("/api/admin", adminRoutes);
     app.use("/api/teacher", teacherRoutes);
