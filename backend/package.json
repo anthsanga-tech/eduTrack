@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
+    "test": "npm run test:jest && npm run test:legacy",
+    "test:jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
+    "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --coverage",
+    "test:legacy": "node --test src/services/resourceProtection.test.js src/services/teacherReports.test.js",
     "migrate:resource-protection": "node scripts/migrateResourceProtection.js"
   },
   "keywords": [],
@@ -19,5 +22,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3",
     "node-cron": "^4.6.0"
+  },
+  "devDependencies": {
+    "jest": "^30.5.2",
+    "mongodb-memory-server": "^10.4.3",
+    "supertest": "^7.3.2"
   }
 }

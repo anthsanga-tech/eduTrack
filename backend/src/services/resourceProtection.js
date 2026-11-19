@@ -49,6 +49,19 @@ export const hasStartedAttempts = (attemptState = {}) =>
 export const hasHistoricalAttempts = (attemptState = {}) =>
     Boolean(attemptState.hasAttempts);
 
+export const getTestAttemptEligibility = (attemptCount, attemptRules = {}) => {
+    const maxAttempts = Number(attemptRules.maxAttempts) || 1;
+    const attemptsLeft = Math.max(maxAttempts - attemptCount, 0);
+    const canAttempt = attemptsLeft > 0 && (attemptCount === 0 || Boolean(attemptRules.allowRetake));
+
+    return {
+        maxAttempts,
+        attemptsLeft,
+        canAttempt,
+        canRetake: attemptCount > 0 && Boolean(attemptRules.allowRetake) && attemptsLeft > 0,
+    };
+};
+
 const canManageTest = (test, userId, isAdmin) =>
     Boolean(isAdmin) || isOwnedBy(test, "teacher", userId);
 

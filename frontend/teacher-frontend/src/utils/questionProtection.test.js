@@ -1,20 +1,19 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { test, expect } from "vitest";
 import {
   getQuestionProtectionActions,
   getQuestionProtectionBadges,
 } from "./questionProtection.js";
 
 test("available questions show no protection type and use backend capabilities", () => {
-  assert.deepEqual(getQuestionProtectionBadges({}), [
+  expect(getQuestionProtectionBadges({})).toEqual([
     { label: "Available", className: "" },
   ]);
-  assert.deepEqual(getQuestionProtectionActions({
+  expect(getQuestionProtectionActions({
     canEdit: true,
     canDelete: true,
     canLock: true,
     canUnlock: false,
-  }), {
+  })).toEqual({
     canEdit: true,
     canDelete: true,
     canLock: true,
@@ -23,28 +22,28 @@ test("available questions show no protection type and use backend capabilities",
 });
 
 test("system, usage, and manual locks render separately", () => {
-  assert.deepEqual(getQuestionProtectionBadges({
+  expect(getQuestionProtectionBadges({
     isSystemProtected: true,
-  }), [{ label: "System protected", className: "is-system" }]);
-  assert.deepEqual(getQuestionProtectionBadges({
+  })).toEqual([{ label: "System protected", className: "is-system" }]);
+  expect(getQuestionProtectionBadges({
     isManuallyLocked: true,
-  }), [{ label: "Manually locked", className: "is-locked" }]);
-  assert.deepEqual(getQuestionProtectionBadges({
+  })).toEqual([{ label: "Manually locked", className: "is-locked" }]);
+  expect(getQuestionProtectionBadges({
     isInUse: true,
     isManuallyLocked: true,
-  }), [
+  })).toEqual([
     { label: "In use · Protected", className: "is-protected" },
     { label: "Manually locked", className: "is-locked" },
   ]);
 });
 
 test("usage-protection actions come from backend permissions", () => {
-  assert.deepEqual(getQuestionProtectionActions({
+  expect(getQuestionProtectionActions({
     canEdit: false,
     canDelete: false,
     canLock: false,
     canUnlock: false,
-  }), {
+  })).toEqual({
     canEdit: false,
     canDelete: false,
     canLock: false,

@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { test, expect } from "vitest";
 import {
   getTestStatusChoices,
   getTestLifecycleActions,
@@ -8,20 +7,20 @@ import {
 } from "./testLifecycle.js";
 
 test("status choices allow only lifecycle-safe transitions", () => {
-  assert.deepEqual(getTestStatusChoices("drafted", { canPublish: true }), [
+  expect(getTestStatusChoices("drafted", { canPublish: true })).toEqual([
     { value: "drafted", label: "Draft", disabled: false },
     { value: "published", label: "Published", disabled: false },
     { value: "closed", label: "Closed", disabled: true },
   ]);
-  assert.deepEqual(getTestStatusChoices("published", { canClose: false }), [
+  expect(getTestStatusChoices("published", { canClose: false })).toEqual([
     { value: "drafted", label: "Draft", disabled: true },
     { value: "published", label: "Published", disabled: false },
     { value: "closed", label: "Closed", disabled: true },
   ]);
-  assert.deepEqual(getTestStatusChoices("published", { canClose: true }).map(choice => choice.disabled), [
+  expect(getTestStatusChoices("published", { canClose: true }).map(choice => choice.disabled)).toEqual([
     true, false, false,
   ]);
-  assert.deepEqual(getTestStatusChoices("closed").map(choice => choice.disabled), [
+  expect(getTestStatusChoices("closed").map(choice => choice.disabled)).toEqual([
     true, true, false,
   ]);
 });
@@ -34,14 +33,14 @@ test("drafted unlocked tests expose only backend-approved management actions", (
     canLock: true,
     canUnlock: false,
   });
-  assert.deepEqual(actions, {
+  expect(actions).toEqual({
     canView: true,
     canEdit: true,
     canDelete: true,
     canLock: true,
     canUnlock: false,
   });
-  assert.equal(getTestLifecycleBadges({ status: "drafted" }).statusLabel, "Drafted");
+  expect(getTestLifecycleBadges({ status: "drafted" }).statusLabel).toBe("Drafted");
 });
 
 test("drafted locked tests show a separate lock badge and only permit unlocking", () => {
@@ -53,9 +52,9 @@ test("drafted locked tests show a separate lock badge and only permit unlocking"
     canLock: false,
     canUnlock: true,
   };
-  assert.equal(getTestLifecycleBadges(test).isManuallyLocked, true);
-  assert.equal(getTestLifecycleActions(test).canUnlock, true);
-  assert.equal(getTestLifecycleActions(test).canEdit, false);
+  expect(getTestLifecycleBadges(test).isManuallyLocked).toBe(true);
+  expect(getTestLifecycleActions(test).canUnlock).toBe(true);
+  expect(getTestLifecycleActions(test).canEdit).toBe(false);
 });
 
 test("published and closed tests remain view-only regardless of attempt count", () => {
@@ -72,17 +71,17 @@ test("published and closed tests remain view-only regardless of attempt count", 
     };
     const badges = getTestLifecycleBadges(test);
     const actions = getTestLifecycleActions(test);
-    assert.equal(badges.statusLabel, status === "published" ? "Published" : "Closed");
-    assert.equal(badges.isInUse, true);
-    assert.equal(actions.canEdit, false);
-    assert.equal(actions.canDelete, false);
-    assert.equal(actions.canLock, false);
-    assert.equal(actions.canUnlock, false);
+    expect(badges.statusLabel).toBe(status === "published" ? "Published" : "Closed");
+    expect(badges.isInUse).toBe(true);
+    expect(actions.canEdit).toBe(false);
+    expect(actions.canDelete).toBe(false);
+    expect(actions.canLock).toBe(false);
+    expect(actions.canUnlock).toBe(false);
   }
 });
 
 test("legacy draft status is presented as drafted until migration has run", () => {
-  assert.equal(getTestLifecycleStatus({ status: "draft" }), "drafted");
+  expect(getTestLifecycleStatus({ status: "draft" })).toBe("drafted");
 });
 
 test("legacy draft tests without lifecycle capabilities remain editable and manageable", () => {
@@ -92,27 +91,27 @@ test("legacy draft tests without lifecycle capabilities remain editable and mana
     totalSubmissions: 0,
   });
 
-  assert.equal(actions.canEdit, true);
-  assert.equal(actions.canDelete, true);
-  assert.equal(actions.canLock, true);
-  assert.equal(actions.canUnlock, false);
+  expect(actions.canEdit).toBe(true);
+  expect(actions.canDelete).toBe(true);
+  expect(actions.canLock).toBe(true);
+  expect(actions.canUnlock).toBe(false);
 });
 
 test("legacy draft fallback respects locks and records while preserving backend permissions otherwise", () => {
-  assert.equal(getTestLifecycleActions({
+  expect(getTestLifecycleActions({
     status: "draft",
     isLocked: true,
     totalSubmissions: 0,
-  }).canEdit, false);
-  assert.equal(getTestLifecycleActions({
+  }).canEdit).toBe(false);
+  expect(getTestLifecycleActions({
     status: "draft",
     isLocked: false,
     totalSubmissions: 2,
-  }).canEdit, false);
-  assert.equal(getTestLifecycleActions({
+  }).canEdit).toBe(false);
+  expect(getTestLifecycleActions({
     status: "draft",
     isLocked: false,
     totalSubmissions: 0,
     canEdit: false,
-  }).canEdit, true);
+  }).canEdit).toBe(true);
 });

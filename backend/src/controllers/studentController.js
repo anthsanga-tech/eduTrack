@@ -6,6 +6,7 @@ import {
   acquireQuestionWriteLocks,
   createAttemptSnapshot,
   gradeAttemptAnswers,
+  getTestAttemptEligibility,
 } from "../services/resourceProtection.js";
 
 const serializeSubmissionWithSnapshots = (submission) => {
@@ -204,8 +205,8 @@ export const getAssignedTests = async (req, res) => {
           submittedAt: null,
         }),
       ]);
-      const { allowRetake, maxAttempts } = test.attemptRules;
-      const attemptsLeft = Math.max(maxAttempts - attemptCount,0);
+      const { maxAttempts, attemptsLeft, canAttempt, canRetake } =
+        getTestAttemptEligibility(attemptCount, test.attemptRules);
       if (test.startTime && new Date() < test.startTime) {
         // upcoming — visible but cannot start
         testStatus = "upcoming";
@@ -223,8 +224,8 @@ export const getAssignedTests = async (req, res) => {
           attemptsLeft,
           maxAttempts,
           canStart: Boolean(activeAttempt) || (isPublished && attemptCount < 1),
-          canAttempt: Boolean(activeAttempt) || (isPublished && attemptsLeft > 0),
-          canRetake: isPublished && allowRetake && attemptsLeft > 0 && attemptCount > 0,
+          canAttempt: Boolean(activeAttempt) || (isPublished && canAttempt),
+          canRetake: isPublished && canRetake,
           canViewResult: attemptCount > 0
       };
       return {
@@ -309,6 +310,20 @@ export const getCreateAttemptID = async (req, res) => {
         await existing.save({ session });
         submissionId = existing._id;
         return;
+      }
+
+      const attemptCount = await Submission.countDocuments({
+        test: testId,
+        student: req.user._id,
+      }).session(session);
+      const attemptEligibility = getTestAttemptEligibility(attemptCount, test.attemptRules);
+      if (!attemptEligibility.canAttempt) {
+        responseStatus = 403;
+        throw new Error(
+          attemptCount > 0 && !test.attemptRules?.allowRetake
+            ? "Retakes are not allowed for this test"
+            : "Maximum attempts reached"
+        );
       }
 
       const now = new Date();

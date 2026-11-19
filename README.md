@@ -244,6 +244,49 @@ npm run dev -- --port 5175
 
 Each frontend uses `http://localhost:5000/api` by default. To use a different API URL, set `VITE_API_URL` in that frontend's environment.
 
+## Automated testing
+
+The backend uses Jest for business-rule and API tests, Supertest for HTTP requests, and MongoDB Memory Server for an isolated replica-set database. Integration tests connect only to the generated in-memory MongoDB URI; they do not load `backend/.env`, call the application's database connector, or fall back to a configured development or production database. The first run may download a MongoDB binary.
+
+The three frontends use Vitest, jsdom, and React Testing Library. Each application has a separate test environment and package installation.
+
+Install dependencies from each project directory if they are not already installed:
+
+```bash
+cd backend
+npm install
+
+cd ../frontend/admin-frontend
+npm install
+
+cd ../teacher-frontend
+npm install
+
+cd ../student-frontend
+npm install
+```
+
+Run all backend Jest and existing Node test-runner tests:
+
+```bash
+cd backend
+npm test
+```
+
+Run backend Jest tests with coverage:
+
+```bash
+npm run test:coverage
+```
+
+Run frontend component and utility tests from each frontend directory:
+
+```bash
+npm test
+```
+
+Use `npm run test:watch` in a frontend directory for interactive local test development. Tests use synthetic users and database records; do not point test commands at a real MongoDB server.
+
 ## API
 
 The backend mounts these route groups:

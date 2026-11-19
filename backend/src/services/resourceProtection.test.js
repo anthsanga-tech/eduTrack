@@ -486,6 +486,7 @@ test("tests with historical attempts cannot be deleted", async (t) => {
 test("starting a student attempt coordinates with question mutations", async (t) => {
     mockSession(t);
     t.mock.method(TestModel, "updateOne", async () => ({ matchedCount: 1 }));
+    t.mock.method(Submission, "countDocuments", () => resolvedQuery(0));
     const question = {
         _id: questionId,
         questionText: "Prompt",
@@ -549,6 +550,7 @@ test("closed tests reject new attempts but let existing attempts resume", async 
     }));
     let activeAttempt = null;
     t.mock.method(Submission, "findOne", () => resolvedQuery(activeAttempt));
+    t.mock.method(Submission, "countDocuments", () => resolvedQuery(0));
     const runAttemptStart = async () => {
         const res = response();
         await getCreateAttemptID({
